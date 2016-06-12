@@ -18,11 +18,16 @@ class Document {
      */
     protected $revision;
 
-    public function __construct(string $uuid) {
+    public function __construct(string $uuid, string $revision) {
         $this->uuid = $uuid;
+        $this->revision = $revision;
     }
 
     public function uuid() : string {
         return $this->uuid;
+    }
+
+    public function revision() : string {
+        return $this->revision;
     }
 }
