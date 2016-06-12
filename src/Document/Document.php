@@ -1,11 +1,11 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace Crell\Document\Document;
 
-class Document {
-
+class Document
+{
     /**
      * UUID of this document.
      *
@@ -20,16 +20,19 @@ class Document {
      */
     protected $revision;
 
-    public function __construct(string $uuid, string $revision) {
+    public function __construct(string $uuid, string $revision)
+    {
         $this->uuid = $uuid;
         $this->revision = $revision;
     }
 
-    public function uuid() : string {
+    public function uuid() : string
+    {
         return $this->uuid;
     }
 
-    public function revision() : string {
+    public function revision() : string
+    {
         return $this->revision;
     }
 }
