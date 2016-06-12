@@ -21,10 +21,16 @@ class Collection
      */
     protected $name;
 
-    public function __construct(string $name, Connection $conn)
+    /**
+     * @var string
+     */
+    protected $language;
+
+    public function __construct(string $name, Connection $conn, $language = 'en')
     {
         $this->name = $name;
         $this->conn = $conn;
+        $this->language = $language;
     }
 
     public function initializeSchema()
@@ -40,11 +46,22 @@ class Collection
                 'length' => 36,
             ]);
             $table->addColumn('latest', 'boolean');
+            $table->addColumn('language', 'string', [
+                'length' => 12,
+            ]);
             $table->setPrimaryKey(['revision']);
             $table->addIndex(['uuid']);
 
             $schemaManager->createTable($table);
         }
+    }
+
+    public function forLanguage(string $language) : self
+    {
+        $new = clone $this;
+        $new->language = $language;
+
+        return $new;
     }
 
     protected function tableName() : string
@@ -57,23 +74,25 @@ class Collection
         $uuid = Uuid::uuid4()->toString();
         $revision = Uuid::uuid4()->toString();
 
-        return new Document($uuid, $revision);
+        return new Document($uuid, $revision, $this->language);
     }
 
     public function load(string $uuid) : Document
     {
         // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND latest = :latest', [
+        $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND latest = :latest AND language = :language', [
             ':uuid' => $uuid,
             ':latest' => 1,
+            ':language' => $this->language,
         ]);
 
         $data = $statement->fetch();
 
-        return new Document($data['uuid'], $data['revision']);
+        return new Document($data['uuid'], $data['revision'], $data['language']);
     }
 
-    public function loadRevision(string $uuid, string $revision) : Document {
+    public function loadRevision(string $uuid, string $revision) : Document
+    {
         // @todo There's probably a better/safer way to do this.
         $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND revision = :revision', [
             ':uuid' => $uuid,
@@ -82,7 +101,7 @@ class Collection
 
         $data = $statement->fetch();
 
-        return new Document($data['uuid'], $data['revision']);
+        return new Document($data['uuid'], $data['revision'], $data['language']);
     }
 
     public function save(Document $document)
@@ -95,10 +114,12 @@ class Collection
                 'uuid' => $document->uuid(),
                 'revision' => $revision,
                 'latest' => true,
+                'language' => $document->language(),
             ]);
-            $this->conn->executeUpdate('UPDATE '.$this->tableName().' SET latest = :latest WHERE uuid = :uuid AND NOT revision = :revision ', [
+            $this->conn->executeUpdate('UPDATE '.$this->tableName().' SET latest = :latest WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
                 ':latest' => 0,
                 ':uuid' => $document->uuid(),
+                ':language' => $document->language(),
                 ':revision' => $revision,
             ]);
         });

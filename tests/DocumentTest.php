@@ -131,4 +131,29 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($doc2->uuid(), $old_revision->uuid());
         $this->assertEquals($doc2->revision(), $old_revision->revision());
     }
+
+    public function testLanguage()
+    {
+        $collection = new Collection('coll', $this->conn);
+        $collection->initializeSchema();
+
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+
+        $collection->save($doc1);
+
+        $doc1_en = $collection->load($uuid);
+
+        $doc1_fr = $doc1_en->asLanguage('fr');
+
+        $collection->save($doc1_fr);
+
+        $collection_fr = $collection->forLanguage('fr');
+        $doc1_fr = $collection_fr->load($uuid);
+
+        $this->assertEquals($doc1_en->uuid(), $doc1_fr->uuid());
+        $this->assertNotEquals($doc1_en->revision(), $doc1_fr->revision());
+        $this->assertEquals('en', $doc1_en->language());
+        $this->assertEquals('fr', $doc1_fr->language());
+    }
 }
