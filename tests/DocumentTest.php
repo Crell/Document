@@ -110,4 +110,25 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($doc1->revision(), $doc3->revision());
         $this->assertNotEquals($doc2->revision(), $doc3->revision());
     }
+
+    public function testLoadOldRevision()
+    {
+        $collection = new Collection('coll', $this->conn);
+        $collection->initializeSchema();
+
+        $doc1 = $collection->createDocument();
+
+        $uuid = $doc1->uuid();
+
+        $collection->save($doc1);
+
+        $doc2 = $collection->load($uuid);
+
+        $collection->save($doc2);
+
+        $old_revision = $collection->loadRevision($uuid, $doc2->revision());
+
+        $this->assertEquals($doc2->uuid(), $old_revision->uuid());
+        $this->assertEquals($doc2->revision(), $old_revision->revision());
+    }
 }

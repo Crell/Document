@@ -62,11 +62,22 @@ class Collection
 
     public function load(string $uuid) : Document
     {
-
         // @todo There's probably a better/safer way to do this.
         $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND latest = :latest', [
             ':uuid' => $uuid,
             ':latest' => 1,
+        ]);
+
+        $data = $statement->fetch();
+
+        return new Document($data['uuid'], $data['revision']);
+    }
+
+    public function loadRevision(string $uuid, string $revision) : Document {
+        // @todo There's probably a better/safer way to do this.
+        $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND revision = :revision', [
+            ':uuid' => $uuid,
+            ':revision' => $revision,
         ]);
 
         $data = $statement->fetch();
