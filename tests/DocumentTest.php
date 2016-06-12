@@ -99,7 +99,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase {
 
         $newdoc = $collection->load('123');
 
-        $this->assertEquals($doc->id(), $newdoc->id());
+        $this->assertEquals($doc->uuid(), $newdoc->uuid());
 
     }
 }

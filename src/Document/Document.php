@@ -5,17 +5,24 @@ namespace Crell\Document\Document;
 class Document {
 
     /**
-     * UUID of this document
+     * UUID of this document.
      *
      * @var string
      */
-    protected $id;
+    protected $uuid;
 
-    public function __construct(string $id) {
-        $this->id = $id;
+    /**
+     * Revision ID of this document.
+     *
+     * @var string.
+     */
+    protected $revision;
+
+    public function __construct(string $uuid) {
+        $this->uuid = $uuid;
     }
 
-    public function id() : string {
-        return $this->id;
+    public function uuid() : string {
+        return $this->uuid;
     }
 }

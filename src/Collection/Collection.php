@@ -59,7 +59,7 @@ class Collection
     public function save(Document $document) {
 
         $this->conn->insert($this->tableName(), [
-            'uuid' => $document->id(),
+            'uuid' => $document->uuid(),
         ]);
     }
 
