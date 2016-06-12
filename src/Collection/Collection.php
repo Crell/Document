@@ -9,6 +9,12 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Ramsey\Uuid\Uuid;
 
+/**
+ * A Collection represents a set of documents with similar characteristics.
+ *
+ *
+ * For some definition of similar that is largely open to interpretation.
+ */
 class Collection
 {
     /**
@@ -33,6 +39,9 @@ class Collection
         $this->language = $language;
     }
 
+    /**
+     * Creates the schema for this collection if necessary.
+     */
     public function initializeSchema()
     {
         $schemaManager = $this->conn->getSchemaManager();
@@ -56,6 +65,13 @@ class Collection
         }
     }
 
+    /**
+     * Returns a new collection targeted at ths specified language.
+     *
+     * @param string $language
+     *   The language for which we want a collection.
+     * @return Collection
+     */
     public function forLanguage(string $language) : self
     {
         $new = clone $this;
@@ -64,11 +80,25 @@ class Collection
         return $new;
     }
 
+    /**
+     *  Returns the name of the main table of this collection.
+     *
+     * @return string
+     *   The name of the table.
+     */
     protected function tableName() : string
     {
         return 'collection_'.$this->name;
     }
 
+    /**
+     * Returns a new, empty document.
+     *
+     * @todo If we want to move toward immutable objects, then what becomes of this?
+     *
+     * @return Document
+     *   A new document with just the appropriate IDs.
+     */
     public function createDocument() : Document
     {
         $uuid = Uuid::uuid4()->toString();
@@ -77,6 +107,22 @@ class Collection
         return new Document($uuid, $revision, $this->language);
     }
 
+    /**
+     * Retrieves a specified document from the collection.
+     *
+     * Specifically, the default revision will be returned for the language
+     * of this collection.
+     *
+     * @todo Add support for non-latest default revisions.
+     *
+     * @param string $uuid
+     *   The UUID of the Document to load.
+     * @return Document
+     *   The corresponding document.
+     * @throws \Doctrine\DBAL\DBALException
+     *
+     * @todo Catch and translate the exception.
+     */
     public function load(string $uuid) : Document
     {
         // @todo There's probably a better/safer way to do this.
@@ -91,6 +137,21 @@ class Collection
         return new Document($data['uuid'], $data['revision'], $data['language']);
     }
 
+    /**
+     * Retrieves a specific revision of a specified document.
+     *
+     * @todo Should this be language-sensitive?
+     *
+     * @param string $uuid
+     *   The UUID of the Document to load.
+     * @param string $revision
+     *   The revision ID of the Document to load.
+     * @return Document
+     *   The corresponding document.
+     * @throws \Doctrine\DBAL\DBALException
+     *
+     * @todo Catch and translate the exception.
+     */
     public function loadRevision(string $uuid, string $revision) : Document
     {
         // @todo There's probably a better/safer way to do this.
@@ -104,6 +165,18 @@ class Collection
         return new Document($data['uuid'], $data['revision'], $data['language']);
     }
 
+    /**
+     * Creates a new revision of the specified Document.
+     *
+     * @todo Track parantage of entities.
+     *
+     * @todo We need to switch this to an explicitly mutable object, or a command,
+     * or something.
+     *
+     * @param Document $document
+     *   The document to be persisted.
+     * @throws \Exception
+     */
     public function save(Document $document)
     {
         $this->conn->transactional(function () use ($document) {
