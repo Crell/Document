@@ -37,6 +37,7 @@ class Collection
             $table->addColumn('uuid', 'string', [
                 'length' => 36
             ]);
+            $table->setPrimaryKey(['uuid']);
 
             $schemaManager->createTable($table);
         }
@@ -46,10 +47,20 @@ class Collection
         return 'collection_' . $this->name;
     }
 
-    public function load(string $id) : Document {
+    public function load(string $uuid) : Document {
 
-        return new Document($id);
+        $statement = $this->conn->executeQuery("SELECT * FROM " . $this->tableName() . ' WHERE uuid = ?', [$uuid]);
 
+        $data = $statement->fetch();
+
+        return new Document($data['uuid']);
+    }
+
+    public function save(Document $document) {
+
+        $this->conn->insert($this->tableName(), [
+            'uuid' => $document->id(),
+        ]);
     }
 
 }

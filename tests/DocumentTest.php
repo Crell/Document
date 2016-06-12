@@ -4,6 +4,7 @@ namespace Crell\Document\Test;
 
 
 use Crell\Document\Collection\Collection;
+use Crell\Document\Document\Document;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
@@ -84,16 +85,21 @@ class DocumentTest extends \PHPUnit_Framework_TestCase {
     public function testCollection()
     {
         $collection = new Collection('coll', $this->conn);
-
         $collection->initializeSchema();
     }
 
-    public function testStuff()
+    public function testSaveAndLoad()
     {
         $collection = new Collection('coll', $this->conn);
+        $collection->initializeSchema();
 
-        $document = $collection->load(123);
+        $doc = new Document('123');
 
-        $this->assertEquals(123, $document->id());
+        $collection->save($doc);
+
+        $newdoc = $collection->load('123');
+
+        $this->assertEquals($doc->id(), $newdoc->id());
+
     }
 }
