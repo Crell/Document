@@ -1,0 +1,39 @@
+{
+    "name": "crell/document",
+    "type": "library",
+    "description": "Experimental document library",
+    "license": "LGPLv2+",
+    "keywords": [],
+    "homepage": "https://github.com/Crell/Document",
+    "authors": [
+        {
+            "name": "Larry Garfield",
+            "email": "larry@garfieldtech.com",
+            "homepage": "http://www.garfieldtech.com/"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Crell\\Document\\": "src/"}
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Crell\\Document\\Test\\": "tests"
+        }
+    },
+    "require": {
+        "php": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.*",
+        "codeclimate/php-test-reporter": "dev-master"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "scripts": {
+        "test": "php vendor/bin/phpunit",
+        "test-coverage": "php vendor/bin/phpunit --coverage-html coverage"
+    }
+}

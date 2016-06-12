@@ -1,0 +1,14 @@
+language: php
+php:
+  - "7.0"
+
+before_script:
+  - composer install --dev
+
+## Run on container environment
+sudo: false
+
+## Cache composer bits
+cache:
+  directories:
+    - $HOME/.composer/cache
