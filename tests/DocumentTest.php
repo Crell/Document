@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Crell\Document\Test;
 
-
 use Crell\Document\Collection\Collection;
-use Crell\Document\Document\Document;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 

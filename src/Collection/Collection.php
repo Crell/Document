@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Crell\Document\Collection;
 
 use Crell\Document\Document\Document;
