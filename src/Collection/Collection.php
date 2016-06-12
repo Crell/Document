@@ -55,6 +55,8 @@ class Collection
                 'length' => 36,
             ]);
             $table->addColumn('latest', 'boolean');
+            // default_rev is named differently because "default" is a reserved word.
+            $table->addColumn('default_rev', 'boolean');
             $table->addColumn('language', 'string', [
                 'length' => 12,
             ]);
@@ -113,8 +115,6 @@ class Collection
      * Specifically, the default revision will be returned for the language
      * of this collection.
      *
-     * @todo Add support for non-latest default revisions.
-     *
      * @param string $uuid
      *   The UUID of the Document to load.
      * @return Document
@@ -126,9 +126,9 @@ class Collection
     public function load(string $uuid) : Document
     {
         // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND latest = :latest AND language = :language', [
+        $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND default_rev = :default AND language = :language', [
             ':uuid' => $uuid,
-            ':latest' => 1,
+            ':default' => 1,
             ':language' => $this->language,
         ]);
 
@@ -175,18 +175,23 @@ class Collection
      *
      * @param Document $document
      *   The document to be persisted.
+     * @param bool $setDefault
+     *   True if this should become the default revision of this Document in its
+     *   language, False otherwise.
      * @throws \Exception
      */
-    public function save(Document $document)
+    public function save(Document $document, bool $setDefault = true)
     {
-        $this->conn->transactional(function () use ($document) {
+        $this->conn->transactional(function () use ($document, $setDefault) {
 
             // @todo Figure out how to use this properly.
             $revision = Uuid::uuid4()->toString();
+
             $this->conn->insert($this->tableName(), [
                 'uuid' => $document->uuid(),
                 'revision' => $revision,
                 'latest' => true,
+                'default_rev' => (int)$setDefault,
                 'language' => $document->language(),
             ]);
             $this->conn->executeUpdate('UPDATE '.$this->tableName().' SET latest = :latest WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
@@ -195,6 +200,15 @@ class Collection
                 ':language' => $document->language(),
                 ':revision' => $revision,
             ]);
+
+            if ($setDefault) {
+                $this->conn->executeUpdate('UPDATE '.$this->tableName().' SET default_rev = :default WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
+                    ':default' => 0,
+                    ':uuid' => $document->uuid(),
+                    ':language' => $document->language(),
+                    ':revision' => $revision,
+                ]);
+            }
         });
     }
 }

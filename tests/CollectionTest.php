@@ -86,4 +86,27 @@ class CollectionTest extends DocumentTestBase
         $this->assertEquals('en', $doc1_en->language());
         $this->assertEquals('fr', $doc1_fr->language());
     }
+
+    public function testDefault()
+    {
+        $collection = new Collection('coll', $this->conn);
+        $collection->initializeSchema();
+
+        $doc1 = $collection->createDocument();
+
+        $uuid = $doc1->uuid();
+
+        $collection->save($doc1);
+
+        $doc2 = $collection->load($uuid);
+
+        $collection->save($doc2, false);
+
+        // This should get the default revision, aka be the same as $doc2.
+        $doc3 = $collection->load($uuid);
+
+        $this->assertEquals($doc1->uuid(), $doc2->uuid());
+        $this->assertEquals($doc1->uuid(), $doc3->uuid());
+        $this->assertEquals($doc2->revision(), $doc3->revision());
+    }
 }
