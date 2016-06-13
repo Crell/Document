@@ -4,13 +4,9 @@
 namespace Crell\Document\Collection;
 
 
-use Doctrine\DBAL\Connection;
-use Crell\Document\Document\Document;
-use Crell\Document\Document\LoadableDocumentTrait;
 use Crell\Document\Document\MutableDocumentInterface;
-use Crell\Document\Document\MutableDocumentTrait;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
-use Ramsey\Uuid\Uuid;
 
 class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
 {
