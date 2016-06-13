@@ -5,6 +5,8 @@ declare (strict_types = 1);
 namespace Crell\Document\Collection;
 
 use Crell\Document\Document\Document;
+use Crell\Document\Document\DocumentInterface;
+use Crell\Document\Document\DocumentTrait;
 use Crell\Document\Document\LoadableDocumentTrait;
 use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Document\MutableDocumentTrait;
@@ -96,6 +98,7 @@ class Collection implements CollectionInterface {
     protected function createMutableDocument() : MutableDocumentInterface
     {
         $document = new class extends Document implements MutableDocumentInterface {
+            use DocumentTrait;
             use MutableDocumentTrait;
             use LoadableDocumentTrait;
         };
@@ -109,7 +112,8 @@ class Collection implements CollectionInterface {
      */
     protected function createLoadableDocument() : Document
     {
-        $document = new class extends Document {
+        $document = new class extends Document implements DocumentInterface {
+            use DocumentTrait;
             use LoadableDocumentTrait;
         };
         return $document;

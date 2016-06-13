@@ -5,7 +5,7 @@ declare (strict_types = 1);
 namespace Crell\Document\Document;
 
 
-interface MutableDocumentInterface {
+interface MutableDocumentInterface extends DocumentInterface {
 
     public function setRevisionId(string $revision) : MutableDocumentInterface;
 }
