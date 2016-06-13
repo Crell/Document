@@ -26,7 +26,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function initializeSchema(Collection $collection)
+    public function initializeSchema(CollectionInterface $collection)
     {
         $schemaManager = $this->conn->getSchemaManager();
 
@@ -73,7 +73,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function loadDefaultRevisionData(Collection $collection, string $uuid) : array
+    public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid) : array
     {
         // @todo There's probably a better/safer way to do this.
         $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid = :uuid AND default_rev = :default AND language = :language', [
@@ -90,7 +90,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function loadLatestRevisionData(Collection $collection, string $uuid) : array {
+    public function loadLatestRevisionData(CollectionInterface $collection, string $uuid) : array {
         // @todo There's probably a better/safer way to do this.
         $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid = :uuid AND latest = :latest AND language = :language', [
             ':uuid' => $uuid,
@@ -106,7 +106,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function loadRevisionData(Collection $collection, string $uuid, string $revision) : array
+    public function loadRevisionData(CollectionInterface $collection, string $uuid, string $revision) : array
     {
         // @todo There's probably a better/safer way to do this.
         $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid = :uuid AND revision = :revision', [
@@ -127,7 +127,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function persist(Collection $collection, MutableDocumentInterface $document, bool $setDefault)
+    public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
     {
         $this->conn->transactional(function (Connection $conn) use ($collection, $document, $setDefault) {
 
