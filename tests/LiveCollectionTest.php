@@ -5,22 +5,36 @@ declare (strict_types = 1);
 namespace Crell\Document\Test;
 
 use Crell\Document\Collection\Collection;
+use Crell\Document\Collection\CollectionDriverInterface;
+use Crell\Document\Collection\DoctrineMySQLCollectionDriver;
 use Crell\Document\Document\MutableDocumentInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
-class CollectionTest extends DocumentTestBase
+class LiveCollectionTest extends DocumentTestBase
 {
+
+    /**
+     * @var CollectionDriverInterface
+     */
+    protected $driver;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->driver = new DoctrineMySQLCollectionDriver($this->conn);
+    }
 
     public function testInitializeCollection()
     {
-        $collection = new Collection('coll', $this->conn);
+        $collection = new Collection('coll', $this->driver);
         $collection->initializeSchema();
     }
 
     public function testSaveAndLoad()
     {
-        $collection = new Collection('coll', $this->conn);
+        $collection = new Collection('coll', $this->driver);
         $collection->initializeSchema();
 
         $doc1 = $collection->createDocument();
@@ -44,7 +58,7 @@ class CollectionTest extends DocumentTestBase
 
     public function testNoImmutableSave()
     {
-        $collection = new Collection('coll', $this->conn);
+        $collection = new Collection('coll', $this->driver);
         $collection->initializeSchema();
 
         $doc1 = $collection->createDocument();
@@ -62,7 +76,7 @@ class CollectionTest extends DocumentTestBase
 
     public function testLoadOldRevision()
     {
-        $collection = new Collection('coll', $this->conn);
+        $collection = new Collection('coll', $this->driver);
         $collection->initializeSchema();
 
         $doc1 = $collection->createDocument();
@@ -87,7 +101,7 @@ class CollectionTest extends DocumentTestBase
 
     public function testLanguage()
     {
-        $collection = new Collection('coll', $this->conn);
+        $collection = new Collection('coll', $this->driver);
         $collection->initializeSchema();
 
         $doc1 = $collection->createDocument();
@@ -112,7 +126,7 @@ class CollectionTest extends DocumentTestBase
 
     public function testDefault()
     {
-        $collection = new Collection('coll', $this->conn);
+        $collection = new Collection('coll', $this->driver);
         $collection->initializeSchema();
 
         // Save a new Document.
@@ -134,7 +148,7 @@ class CollectionTest extends DocumentTestBase
 
     public function testLatest()
     {
-        $collection = new Collection('coll', $this->conn);
+        $collection = new Collection('coll', $this->driver);
         $collection->initializeSchema();
 
         // Save a new Document.
