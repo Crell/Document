@@ -5,6 +5,9 @@ declare (strict_types = 1);
 namespace Crell\Document\Collection;
 
 use Crell\Document\Document\Document;
+use Crell\Document\Document\LoadableDocumentTrait;
+use Crell\Document\Document\MutableDocumentInterface;
+use Crell\Document\Document\MutableDocumentTrait;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Ramsey\Uuid\Uuid;
@@ -17,10 +20,6 @@ use Ramsey\Uuid\Uuid;
  */
 class Collection
 {
-    /**
-     * @var \Doctrine\DBAL\Connection
-     */
-    protected $conn;
 
     /**
      * @var string
@@ -59,6 +58,10 @@ class Collection
             $table->addColumn('default_rev', 'boolean');
             $table->addColumn('language', 'string', [
                 'length' => 12,
+            ]);
+
+            $table->addColumn('document', 'json_array', [
+                'length' => 16777215, // This size triggers a MEDIUMTEXT field on MySQL. Postgres will use native JSON.
             ]);
             $table->setPrimaryKey(['revision']);
             $table->addIndex(['uuid']);
@@ -101,12 +104,38 @@ class Collection
      * @return Document
      *   A new document with just the appropriate IDs.
      */
-    public function createDocument() : Document
+    public function createDocument() : MutableDocumentInterface
     {
         $uuid = Uuid::uuid4()->toString();
         $revision = Uuid::uuid4()->toString();
 
-        return new Document($uuid, $revision, $this->language);
+        $document = $this->createMutableDocument();
+
+        // A newly created, unsaved revision has no Revision ID.
+        $document->loadFrom([
+            'uuid' => $uuid,
+            'language' => $this->language,
+            'revision' => $revision,
+        ]);
+
+        return $document;
+    }
+
+    protected function createMutableDocument() : MutableDocumentInterface
+    {
+        $document = new class extends Document implements MutableDocumentInterface {
+            use MutableDocumentTrait;
+            use LoadableDocumentTrait;
+        };
+        return $document;
+    }
+
+    protected function createLoadableDocument() : Document
+    {
+        $document = new class extends Document {
+            use LoadableDocumentTrait;
+        };
+        return $document;
     }
 
     /**
@@ -119,22 +148,59 @@ class Collection
      *   The UUID of the Document to load.
      * @return Document
      *   The corresponding document.
+     */
+    public function load(string $uuid) : Document
+    {
+        $data = $this->loadData($uuid);
+        $document = $this->createLoadableDocument()->loadFrom($data);
+
+        return $document;
+    }
+
+    /**
+     * Retrieves a specified document, with special Mutable methods.
+     *
+     * Note that a mutable object will have a *new* revision ID already set,
+     * so that it can later be serialized properly. If you need the original
+     * revision ID, you should use load() instead.
+     *
+     * @param string $uuid
+     *
+     * @return Document
+     */
+    public function loadMutable(string $uuid) : MutableDocumentInterface
+    {
+        $revision = Uuid::uuid4()->toString();
+
+        $data = $this->loadData($uuid);
+        $document = $this->createMutableDocument()->loadFrom($data);
+        $document->setRevisionId($revision);
+
+        return $document;
+    }
+
+    /**
+     *
+     *
+     * @param $uuid
+     *   The UUID to load.
+     * @return array
      * @throws \Doctrine\DBAL\DBALException
      *
      * @todo Catch and translate the exception.
      */
-    public function load(string $uuid) : Document
+    protected function loadData($uuid) : array
     {
         // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND default_rev = :default AND language = :language', [
+        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName() . ' WHERE uuid = :uuid AND default_rev = :default AND language = :language', [
             ':uuid' => $uuid,
             ':default' => 1,
             ':language' => $this->language,
         ]);
 
-        $data = $statement->fetch();
+        $data = json_decode($statement->fetchColumn(), true);
 
-        return new Document($data['uuid'], $data['revision'], $data['language']);
+        return $data;
     }
 
     /**
@@ -150,18 +216,32 @@ class Collection
      *   The corresponding document.
      * @throws \Doctrine\DBAL\DBALException
      *
-     * @todo Catch and translate the exception.
+     * @throws \Exception
+     *
+     * @todo Catch and translate the Doctrine exception.
      */
     public function loadRevision(string $uuid, string $revision) : Document
     {
         // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT * FROM '.$this->tableName().' WHERE uuid = :uuid AND revision = :revision', [
+        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName() . ' WHERE uuid = :uuid AND revision = :revision', [
             ':uuid' => $uuid,
             ':revision' => $revision,
         ]);
 
-        $data = $statement->fetch();
+        $json = $statement->fetchColumn();
+        if ($json === false) {
+            // @todo Figure out what to do with this.
+            throw new \Exception();
+        }
+        $data = json_decode($json, true);
 
+        $document = $this->createLoadableDocument()->loadFrom($data);
+
+        return $document;
+    }
+
+    protected function decodeDocument(array $data) : Document
+    {
         return new Document($data['uuid'], $data['revision'], $data['language']);
     }
 
@@ -173,40 +253,44 @@ class Collection
      * @todo We need to switch this to an explicitly mutable object, or a command,
      * or something.
      *
-     * @param Document $document
+     * @param MutableDocumentInterface $document
      *   The document to be persisted.
      * @param bool $setDefault
      *   True if this should become the default revision of this Document in its
      *   language, False otherwise.
      * @throws \Exception
      */
-    public function save(Document $document, bool $setDefault = true)
+    public function save(MutableDocumentInterface $document, bool $setDefault = true)
     {
-        $this->conn->transactional(function () use ($document, $setDefault) {
+        $this->conn->transactional(function (Connection $conn) use ($document, $setDefault) {
 
-            // @todo Figure out how to use this properly.
-            $revision = Uuid::uuid4()->toString();
-
-            $this->conn->insert($this->tableName(), [
+            $conn->insert($this->tableName(), [
                 'uuid' => $document->uuid(),
-                'revision' => $revision,
+                'revision' => $document->revision(),
                 'latest' => true,
                 'default_rev' => (int)$setDefault,
                 'language' => $document->language(),
+                'document' => json_encode($document),
             ]);
-            $this->conn->executeUpdate('UPDATE '.$this->tableName().' SET latest = :latest WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
+
+            // Set all revisions of this Document of the same language to not be
+            // the latest, except the one we just saved as the latest.
+            $conn->executeUpdate('UPDATE '.$this->tableName().' SET latest = :latest WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
                 ':latest' => 0,
                 ':uuid' => $document->uuid(),
                 ':language' => $document->language(),
-                ':revision' => $revision,
+                ':revision' => $document->revision(),
             ]);
 
             if ($setDefault) {
-                $this->conn->executeUpdate('UPDATE '.$this->tableName().' SET default_rev = :default WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
+                // If the Document we just saved was flagged as the default, set
+                // all other revisions to not be the default (for the same document
+                // and language).
+                $conn->executeUpdate('UPDATE '.$this->tableName().' SET default_rev = :default WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
                     ':default' => 0,
                     ':uuid' => $document->uuid(),
                     ':language' => $document->language(),
-                    ':revision' => $revision,
+                    ':revision' => $document->revision(),
                 ]);
             }
         });

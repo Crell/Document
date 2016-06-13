@@ -10,7 +10,7 @@ namespace Crell\Document\Document;
  * @todo This likely needs to be broken up into traits and interfaces to make it
  * easier to extend.
  */
-class Document
+class Document implements \JsonSerializable
 {
     /**
      * UUID of this document.
@@ -32,13 +32,6 @@ class Document
      * @var string
      */
     protected $language;
-
-    public function __construct(string $uuid, string $revision, string $language)
-    {
-        $this->uuid = $uuid;
-        $this->revision = $revision;
-        $this->language = $language;
-    }
 
     /**
      * Returns the UUID of the Document.
@@ -86,4 +79,16 @@ class Document
 
         return $new;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function jsonSerialize() {
+        return [
+            'uuid' => $this->uuid,
+            'revision' => $this->revision,
+            'language' => $this->language,
+        ];
+    }
+
 }
