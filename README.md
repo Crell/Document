@@ -3,6 +3,7 @@ Crell\Document
 
 [![Build Status](https://secure.travis-ci.org/Crell/Document.png)](http://travis-ci.org/crell/Document)
 
+Still an experimental work in progress. Not much to see here yet.
 
 ## Installation
 
