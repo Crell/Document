@@ -1,9 +1,9 @@
 <?php
 
+declare (strict_types = 1);
 
 namespace Crell\Document\Test;
 
-use Crell\Document\Collection\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 

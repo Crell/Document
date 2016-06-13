@@ -8,8 +8,6 @@ use Crell\Document\Collection\Collection;
 use Crell\Document\Collection\CollectionDriverInterface;
 use Crell\Document\Collection\DoctrineMySQLCollectionDriver;
 use Crell\Document\Document\MutableDocumentInterface;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
 
 class LiveCollectionTest extends DocumentTestBase
 {
