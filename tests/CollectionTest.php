@@ -125,9 +125,31 @@ class CollectionTest extends DocumentTestBase
         $collection->save($doc2, false);
 
         // This should get the default revision, aka be the same as $doc1.
-        $doc3 = $collection->load($uuid);
+        $default = $collection->load($uuid);
+        $latest = $collection->loadLatestRevision($uuid);
 
-        $this->assertEquals($doc1->uuid(), $doc3->uuid());
-        $this->assertEquals($doc1->revision(), $doc3->revision());
+        $this->assertEquals($doc1->uuid(), $default->uuid());
+        $this->assertEquals($doc1->revision(), $default->revision());
+    }
+
+    public function testLatest()
+    {
+        $collection = new Collection('coll', $this->conn);
+        $collection->initializeSchema();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $collection->save($doc1);
+
+        // Now make a new non-default revision, aka a forward revision.
+        $doc2 = $collection->loadMutable($uuid);
+        $collection->save($doc2, false);
+
+        // This should get the most recent revision, aka be the same as $doc2.
+        $latest = $collection->loadLatestRevision($uuid);
+
+        $this->assertEquals($doc2->uuid(), $latest->uuid());
+        $this->assertEquals($doc2->revision(), $latest->revision());
     }
 }

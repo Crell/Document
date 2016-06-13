@@ -240,9 +240,25 @@ class Collection
         return $document;
     }
 
-    protected function decodeDocument(array $data) : Document
-    {
-        return new Document($data['uuid'], $data['revision'], $data['language']);
+    public function loadLatestRevision(string $uuid) : Document {
+        $data = $this->loadLatestRevisionData($uuid);
+        $document = $this->createLoadableDocument()->loadFrom($data);
+
+        return $document;
+    }
+
+    public function loadLatestRevisionData(string $uuid) : array {
+        // @todo There's probably a better/safer way to do this.
+        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName() . ' WHERE uuid = :uuid AND latest = :latest AND language = :language', [
+            ':uuid' => $uuid,
+            ':latest' => 1,
+            ':language' => $this->language,
+        ]);
+
+        $data = json_decode($statement->fetchColumn(), true);
+
+        return $data;
+
     }
 
     /**
