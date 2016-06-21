@@ -110,7 +110,7 @@ class Collection implements CollectionInterface {
      *
      * @return Document
      */
-    protected function createLoadableDocument() : Document
+    protected function createLoadableDocument() : DocumentInterface
     {
         $document = new class extends Document implements DocumentInterface {
             use DocumentTrait;
@@ -122,7 +122,7 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
-    public function load(string $uuid) : Document
+    public function load(string $uuid) : DocumentInterface
     {
         $data = $this->driver->loadDefaultRevisionData($this, $uuid);
         $document = $this->createLoadableDocument()->loadFrom($data);
@@ -147,7 +147,7 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
-    public function loadRevision(string $uuid, string $revision) : Document
+    public function loadRevision(string $uuid, string $revision) : DocumentInterface
     {
         $data = $this->driver->loadRevisionData($this, $uuid, $revision);
         $document = $this->createLoadableDocument()->loadFrom($data);
@@ -158,7 +158,8 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
-    public function loadLatestRevision(string $uuid) : Document {
+    public function loadLatestRevision(string $uuid) : DocumentInterface
+    {
         $data = $this->driver->loadLatestRevisionData($this, $uuid);
         $document = $this->createLoadableDocument()->loadFrom($data);
 
@@ -171,6 +172,5 @@ class Collection implements CollectionInterface {
     public function save(MutableDocumentInterface $document, bool $setDefault = true)
     {
         $this->driver->persist($this, $document, $setDefault);
-
     }
 }

@@ -5,6 +5,7 @@ declare (strict_types = 1);
 namespace Crell\Document\Collection;
 
 use Crell\Document\Document\Document;
+use Crell\Document\Document\DocumentInterface;
 use Crell\Document\Document\MutableDocumentInterface;
 
 
@@ -65,7 +66,7 @@ interface CollectionInterface {
      * @return Document
      *   The corresponding document.
      */
-    public function load(string $uuid) : Document;
+    public function load(string $uuid) : DocumentInterface;
 
     /**
      * Retrieves a specified document, with special Mutable methods.
@@ -96,7 +97,7 @@ interface CollectionInterface {
      *
      * @throws \Exception
      */
-    public function loadRevision(string $uuid, string $revision) : Document;
+    public function loadRevision(string $uuid, string $revision) : DocumentInterface;
 
     /**
      * Retrieves the latest revision of the specified Document.
@@ -106,7 +107,7 @@ interface CollectionInterface {
      *
      * @return Document
      */
-    public function loadLatestRevision(string $uuid) : Document;
+    public function loadLatestRevision(string $uuid) : DocumentInterface;
 
     /**
      * Creates a new revision of the specified Document.

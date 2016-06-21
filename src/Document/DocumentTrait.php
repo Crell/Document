@@ -6,6 +6,11 @@ namespace Crell\Document\Document;
 
 use Ramsey\Uuid\Uuid;
 
+/**
+ * Stock implementation of DocumentInterface
+ *
+ * @see DocumentInterface
+ */
 trait DocumentTrait
 {
     /**
