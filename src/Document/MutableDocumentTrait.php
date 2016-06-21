@@ -4,15 +4,15 @@ declare (strict_types = 1);
 
 namespace Crell\Document\Document;
 
-
+/**
+ * Default (well, only) implementation of MutableDocumentInterface.
+ *
+ * @see MutableDocumentInterface
+ */
 trait MutableDocumentTrait {
 
     /**
-     *
-     * @param string $revision
-     *
-     * @return self
-     *   The modified object.
+     * {@inheritdoc}
      */
     public function setRevisionId(string $revision) : MutableDocumentInterface
     {
@@ -20,6 +20,9 @@ trait MutableDocumentTrait {
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setTimestamp(\DateTimeImmutable $timestamp) : MutableDocumentInterface
     {
         $this->timestamp = $timestamp;

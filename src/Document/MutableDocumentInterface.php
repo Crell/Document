@@ -4,10 +4,30 @@ declare (strict_types = 1);
 
 namespace Crell\Document\Document;
 
-
+/**
+ * Interface for the mutable variant of documents.
+ *
+ * Note: This is for internal use only, and should almost never be used by
+ * user-space code.
+ */
 interface MutableDocumentInterface extends DocumentInterface {
 
-    public function setRevisionId(string $revision) : MutableDocumentInterface;
+    /**
+     * Sets the revision ID of the document.
+     *
+     * @param string $revision
+     *   The revision ID to set.
+     * @return self
+     */
+    public function setRevisionId(string $revision) : self;
 
-    public function setTimestamp(\DateTimeImmutable $timestamp) : MutableDocumentInterface;
+    /**
+     * Sets the timestamp of the document.
+     *
+     * @param \DateTimeImmutable $timestamp
+     *   The timestamp to set.
+     *
+     * @return self
+     */
+    public function setTimestamp(\DateTimeImmutable $timestamp) : self;
 }
