@@ -4,6 +4,7 @@ declare (strict_types = 1);
 
 namespace Crell\Document\Document;
 
+use Ramsey\Uuid\Uuid;
 
 trait DocumentTrait
 {
@@ -46,7 +47,7 @@ trait DocumentTrait
     public function asLanguage(string $language) : DocumentInterface
     {
         $new = clone $this;
-        $new->revision = '';
+        $new->revision = Uuid::uuid4()->toString();
         $new->language = $language;
 
         return $new;
