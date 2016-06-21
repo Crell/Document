@@ -30,4 +30,13 @@ interface MutableDocumentInterface extends DocumentInterface {
      * @return self
      */
     public function setTimestamp(\DateTimeImmutable $timestamp) : self;
+
+    /**
+     * Sets whether or not this revision should be considered archived.
+     *
+     * @param bool $archived
+     *   True if the revision should be flagged as archived, False otherwise.
+     * @return self
+     */
+    public function setArchived(bool $archived) : self;
 }

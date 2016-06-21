@@ -14,7 +14,7 @@ trait MutableDocumentTrait {
     /**
      * {@inheritdoc}
      */
-    public function setRevisionId(string $revision) : MutableDocumentInterface
+    public function setRevisionId(string $revision) : self
     {
         $this->revision = $revision;
         return $this;
@@ -23,9 +23,18 @@ trait MutableDocumentTrait {
     /**
      * {@inheritdoc}
      */
-    public function setTimestamp(\DateTimeImmutable $timestamp) : MutableDocumentInterface
+    public function setTimestamp(\DateTimeImmutable $timestamp) : self
     {
         $this->timestamp = $timestamp;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setArchived(bool $archived) : self
+    {
+        $this->archived = $archived;
         return $this;
     }
 }

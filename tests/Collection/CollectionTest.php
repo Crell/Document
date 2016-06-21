@@ -174,4 +174,23 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($load1->revision(), $load2->revision());
         $this->assertNotEquals($load1->timestamp()->format('c'), $load2->timestamp()->format('c'));
     }
+
+    public function testArchivedRevisionsNotLoaded()
+    {
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $collection->save($doc1);
+
+        $collection->archive($uuid);
+
+
+        // This should act as if there's nothing found. Which means we need
+        // that handling first... Crap.
+        $collection->load($uuid);
+
+    }
 }

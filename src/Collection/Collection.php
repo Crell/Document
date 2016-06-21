@@ -167,6 +167,14 @@ class Collection implements CollectionInterface {
         return $document;
     }
 
+    public function archive(string $uuid)
+    {
+        $doc = $this->loadMutable($uuid);
+        $doc->setArchived(true);
+
+        $this->save($doc);
+    }
+
     /**
      * {@inheritdoc}
      */
