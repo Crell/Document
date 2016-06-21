@@ -2,38 +2,44 @@
 
 declare (strict_types = 1);
 
-namespace Crell\Document\Test;
+namespace Crell\Document\Test\Collection;
 
 use Crell\Document\Collection\Collection;
 use Crell\Document\Collection\CollectionDriverInterface;
-use Crell\Document\Collection\DoctrineMySQLCollectionDriver;
+use Crell\Document\Collection\CollectionInterface;
+use Crell\Document\Collection\MemoryCollectionDriver;
 use Crell\Document\Document\MutableDocumentInterface;
 
-class LiveCollectionTest extends DocumentTestBase
+
+
+
+class CollectionTest extends \PHPUnit_Framework_TestCase
 {
 
-    /**
-     * @var CollectionDriverInterface
-     */
-    protected $driver;
-
-    public function setUp()
+    public function testDefaultLanguageIsEnglish()
     {
-        parent::setUp();
+        $driver = new MemoryCollectionDriver();
+        $c = new Collection('test', $driver);
 
-        $this->driver = new DoctrineMySQLCollectionDriver($this->conn);
+        $this->assertEquals('en', $c->language());
     }
 
-    public function testInitializeCollection()
+    public function testGettingAlternateLanguageCollection()
     {
-        $collection = new Collection('coll', $this->driver);
-        $collection->initializeSchema();
+        $driver = new MemoryCollectionDriver();
+        $en = new Collection('test', $driver);
+        $fr = $en->forLanguage('fr');
+
+        $this->assertNotEquals($en, $fr);
+        $this->assertEquals('en', $en->language());
+        $this->assertEquals('fr', $fr->language());
     }
 
-    public function testSaveAndLoad()
+
+    public function testNoImmutableSave()
     {
-        $collection = new Collection('coll', $this->driver);
-        $collection->initializeSchema();
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
 
         $doc1 = $collection->createDocument();
 
@@ -41,22 +47,18 @@ class LiveCollectionTest extends DocumentTestBase
 
         $collection->save($doc1);
 
-        $doc2 = $collection->loadMutable($uuid);
+        $doc2 = $collection->load($uuid);
+
+        $this->expectException(\TypeError::class);
 
         $collection->save($doc2);
-
-        $doc3 = $collection->loadMutable($uuid);
-
-        $this->assertEquals($doc1->uuid(), $doc2->uuid());
-        $this->assertEquals($doc1->uuid(), $doc3->uuid());
-        $this->assertNotEquals($doc1->revision(), $doc2->revision());
-        $this->assertNotEquals($doc1->revision(), $doc3->revision());
-        $this->assertNotEquals($doc2->revision(), $doc3->revision());
     }
+
 
     public function testLoadOldRevision()
     {
-        $collection = new Collection('coll', $this->driver);
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
         $collection->initializeSchema();
 
         $doc1 = $collection->createDocument();
@@ -79,10 +81,11 @@ class LiveCollectionTest extends DocumentTestBase
         $this->assertEquals($doc1->revision(), $old_revision->revision());
     }
 
+
     public function testLanguage()
     {
-        $collection = new Collection('coll', $this->driver);
-        $collection->initializeSchema();
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
 
         $doc1 = $collection->createDocument();
         $uuid = $doc1->uuid();
@@ -106,8 +109,8 @@ class LiveCollectionTest extends DocumentTestBase
 
     public function testDefault()
     {
-        $collection = new Collection('coll', $this->driver);
-        $collection->initializeSchema();
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -128,8 +131,8 @@ class LiveCollectionTest extends DocumentTestBase
 
     public function testLatest()
     {
-        $collection = new Collection('coll', $this->driver);
-        $collection->initializeSchema();
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
