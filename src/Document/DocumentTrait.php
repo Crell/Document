@@ -34,21 +34,48 @@ trait DocumentTrait
      */
     protected $language;
 
+    /**
+     *
+     *
+     * @var \DateTimeImmutable
+     */
+    protected $timestamp;
+
+    /**
+     * {@inheritdoc}
+     */
     public function uuid() : string
     {
         return $this->uuid;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function revision() : string
     {
         return $this->revision;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function language() : string
     {
         return $this->language;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function timestamp() : \DateTimeImmutable
+    {
+        return $this->timestamp ?: new \DateTimeImmutable();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function asLanguage(string $language) : DocumentInterface
     {
         $new = clone $this;
@@ -58,11 +85,15 @@ trait DocumentTrait
         return $new;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function jsonSerialize() {
         return [
             'uuid' => $this->uuid,
             'revision' => $this->revision,
             'language' => $this->language,
+            'timestamp' => $this->timestamp()->format('c'),
         ];
     }
 

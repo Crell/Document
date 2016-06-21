@@ -17,7 +17,12 @@ trait MutableDocumentTrait {
     public function setRevisionId(string $revision) : MutableDocumentInterface
     {
         $this->revision = $revision;
+        return $this;
+    }
 
+    public function setTimestamp(\DateTimeImmutable $timestamp) : MutableDocumentInterface
+    {
+        $this->timestamp = $timestamp;
         return $this;
     }
 }

@@ -13,6 +13,9 @@ trait LoadableDocumentTrait {
             $this->$key = $data[$key];
         }
 
+        //$this->timestamp = new \DateTimeImmutable($data['timestamp']);
+        $this->timestamp = $data['timestamp'];
+
         return $this;
     }
 }

@@ -149,4 +149,29 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($doc2->uuid(), $latest->uuid());
         $this->assertEquals($doc2->revision(), $latest->revision());
     }
+
+    public function testTimestampIsSaved()
+    {
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $collection->save($doc1);
+
+        // I hate this, but I don't know how else to compare the timestamps.
+        sleep(1);
+
+        $doc2 = $collection->loadMutable($uuid);
+
+        $collection->save($doc2);
+
+        $load1 = $collection->loadRevision($uuid, $doc1->revision());
+        $load2 = $collection->loadRevision($uuid, $doc2->revision());
+
+        $this->assertEquals($load1->uuid(), $load2->uuid());
+        $this->assertNotEquals($load1->revision(), $load2->revision());
+        $this->assertNotEquals($load1->timestamp()->format('c'), $load2->timestamp()->format('c'));
+    }
 }

@@ -42,6 +42,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
             $table->addColumn('language', 'string', [
                 'length' => 12,
             ]);
+            $table->addColumn('created', 'datetime');
 
             $table->addColumn('document', 'json_array', [
                 'length' => 16777215, // This size triggers a MEDIUMTEXT field on MySQL. Postgres will use native JSON.
@@ -80,13 +81,17 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
 
         $data = json_decode($statement->fetchColumn(), true);
 
+        $data['timestamp'] = new \DateTimeImmutable($data['timestamp']);
+        unset($data['created']);
+
         return $data;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function loadLatestRevisionData(CollectionInterface $collection, string $uuid) : array {
+    public function loadLatestRevisionData(CollectionInterface $collection, string $uuid) : array
+    {
         // @todo There's probably a better/safer way to do this.
         $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid = :uuid AND latest = :latest AND language = :language', [
             ':uuid' => $uuid,
@@ -94,9 +99,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
             ':language' => $collection->language(),
         ]);
 
-        $data = json_decode($statement->fetchColumn(), true);
-
-        return $data;
+        return $this->decodeSerializedDocument($statement->fetchColumn());
     }
 
     /**
@@ -115,9 +118,8 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
             // @todo Figure out what to do with this.
             throw new \Exception();
         }
-        $data = json_decode($json, true);
 
-        return $data;
+        return $this->decodeSerializedDocument($json);
     }
 
     /**
@@ -135,6 +137,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
                 'latest' => true,
                 'default_rev' => (int)$setDefault,
                 'language' => $document->language(),
+                'created' => $document->timestamp()->format('Y-m-d H:i:s'),
                 'document' => json_encode($document),
             ]);
 
@@ -161,5 +164,19 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
         });
     }
 
+    /**
+     * Decodes a JSON serialized document back to an array.
+     *
+     * @param string $json
+     *   The serialized JSON document to decode.
+     *
+     * @return array
+     */
+    protected function decodeSerializedDocument(string $json) : array
+    {
+        $data = json_decode($json, true);
+        $data['timestamp'] = new \DateTimeImmutable($data['timestamp']);
 
+        return $data;
+    }
 }

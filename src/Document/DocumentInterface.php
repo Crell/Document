@@ -33,6 +33,17 @@ interface DocumentInterface extends \JsonSerializable {
     public function language() : string;
 
     /**
+     * Returns the time at which this revision was created.
+     *
+     * The timestamp must always be in UTC time, unconditionally.
+     *
+     * If the revision has never been saved, it will return the current time.
+     *
+     * @return \DateTimeImmutable
+     */
+    public function timestamp() : \DateTimeImmutable;
+
+    /**
      * @todo This is probably wrong and terrible and should be removed in favor
      *       of some other approach. More research needed.
      *

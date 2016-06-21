@@ -80,11 +80,11 @@ class Collection implements CollectionInterface {
 
         $document = $this->createMutableDocument();
 
-        // A newly created, unsaved revision has no Revision ID.
         $document->loadFrom([
             'uuid' => $uuid,
             'language' => $this->language,
             'revision' => $revision,
+            'timestamp' => new \DateTimeImmutable(),
         ]);
 
         return $document;
@@ -140,6 +140,7 @@ class Collection implements CollectionInterface {
         $data = $this->driver->loadDefaultRevisionData($this, $uuid);
         $document = $this->createMutableDocument()->loadFrom($data);
         $document->setRevisionId($revision);
+        $document->setTimestamp(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
 
         return $document;
     }
