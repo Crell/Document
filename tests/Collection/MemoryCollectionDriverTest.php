@@ -26,7 +26,9 @@ class MemoryCollectionDriverTest extends \PHPUnit_Framework_TestCase
         // Create a dummy collection, since calls to the driver need one but
         // the memory driver doesn't use it.
         $this->collection = new class extends Collection {
-            public function __construct() {}
+            public function __construct() {
+                $this->language = 'en';
+            }
         };
     }
 

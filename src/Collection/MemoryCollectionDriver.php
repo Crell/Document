@@ -23,8 +23,8 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function loadLatestRevisionData(CollectionInterface $collection, string $uuid) : array
     {
-        $result = $this->find($this->storage, function(array $item) use ($uuid) {
-            return $item['uuid'] == $uuid && $item['latest'] == true;
+        $result = $this->find($this->storage, function(array $item) use ($collection, $uuid) {
+            return $item['uuid'] == $uuid && $item['latest'] == true && $item['language'] == $collection->language();
         });
         return current(iterator_to_array($result));
     }
@@ -34,8 +34,8 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid) : array
     {
-        $result = $this->find($this->storage, function(array $item) use ($uuid) {
-            return $item['uuid'] == $uuid && $item['default_rev'] == true;
+        $result = $this->find($this->storage, function(array $item) use ($collection, $uuid) {
+            return $item['uuid'] == $uuid && $item['default_rev'] == true && $item['language'] == $collection->language();
         });
         return current(iterator_to_array($result));
     }
