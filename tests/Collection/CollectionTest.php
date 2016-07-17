@@ -5,12 +5,8 @@ declare (strict_types = 1);
 namespace Crell\Document\Test\Collection;
 
 use Crell\Document\Collection\Collection;
-use Crell\Document\Collection\CollectionDriverInterface;
-use Crell\Document\Collection\CollectionInterface;
 use Crell\Document\Collection\MemoryCollectionDriver;
 use Crell\Document\Document\MutableDocumentInterface;
-
-
 
 
 class CollectionTest extends \PHPUnit_Framework_TestCase

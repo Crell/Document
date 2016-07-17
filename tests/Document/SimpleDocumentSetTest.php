@@ -4,7 +4,6 @@ declare (strict_types = 1);
 
 namespace Crell\Document\Document\Test;
 
-
 use Crell\Document\Document\SimpleDocumentSet;
 
 class SimpleDocumentSetTest extends \PHPUnit_Framework_TestCase
