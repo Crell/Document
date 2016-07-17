@@ -35,7 +35,7 @@ class SimpleDocumentSet implements DocumentSetInterface, \IteratorAggregate
      * {@inheritdoc}
      */
     public function offsetExists($offset) {
-        return isset($this->values['offset']);
+        return isset($this->values[$offset]);
     }
 
     /**
