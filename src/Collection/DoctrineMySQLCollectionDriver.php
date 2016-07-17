@@ -72,19 +72,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
      */
     public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid) : array
     {
-        // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid = :uuid AND default_rev = :default AND language = :language', [
-            ':uuid' => $uuid,
-            ':default' => 1,
-            ':language' => $collection->language(),
-        ]);
-
-        $data = json_decode($statement->fetchColumn(), true);
-
-        $data['timestamp'] = new \DateTimeImmutable($data['timestamp']);
-        unset($data['created']);
-
-        return $data;
+        return $this->loadMultipleDefaultRevisionData($collection, [$uuid])->current();
     }
 
     /**
