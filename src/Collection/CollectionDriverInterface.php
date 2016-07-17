@@ -17,7 +17,8 @@ interface CollectionDriverInterface
 
     /**
      *
-     * @param CollectionInterface $collection
+     * @param Collection $collection
+     *   The collection for which to run this driver.
      * @param string $uuid
      *
      * @return array
@@ -26,7 +27,8 @@ interface CollectionDriverInterface
 
     /**
      *
-     * @param CollectionInterface $collection
+     * @param Collection $collection
+     *   The collection for which to run this driver.
      * @param $uuid
      *
      * @return array
@@ -35,13 +37,31 @@ interface CollectionDriverInterface
 
     /**
      *
-     * @param CollectionInterface $collection
+     * @param Collection $collection
+     *   The collection for which to run this driver.
      * @param string $uuid
      * @param string $revision
      *
      * @return array
      */
     public function loadRevisionData(CollectionInterface $collection, string $uuid, string $revision) : array;
+
+    /**
+     * Returns an iterable of records with the specified IDs.
+     *
+     * Note: The returned order of IDs is NOT guaranteed.
+     *
+     * @todo Get rid of the single load method in favor of this one.
+     *
+     * @param Collection $collection
+     *   The collection for which to run this driver.
+     * @param array $uuids
+     *   An array of UUIDs to load.
+     *
+     * @return \Iterator
+     *   An iterator of the specifed document records.
+     */
+    public function loadMultipleDefaultRevisionData(Collection $collection, array $uuids) : \Iterator;
 
     /**
      *

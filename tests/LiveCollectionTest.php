@@ -172,4 +172,39 @@ class LiveCollectionTest extends DocumentTestBase
         $this->assertNotEquals($load1->timestamp()->format('c'), $load2->timestamp()->format('c'));
     }
 
+    public function testLoadMultiple()
+    {
+        $collection = new Collection('coll', $this->driver);
+        $collection->initializeSchema();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid1 = $doc1->uuid();
+        $collection->save($doc1);
+
+        // Save a second new Document.
+        $doc2 = $collection->createDocument();
+        $uuid2 = $doc2->uuid();
+        $collection->save($doc2);
+
+        // Save a second new Document.
+        $doc3 = $collection->createDocument();
+        $uuid3 = $doc3->uuid();
+        $collection->save($doc3);
+
+        $docs = $collection->loadMultiple([$uuid1, $uuid2]);
+
+        $this->assertCount(2, $docs);
+
+        $docs_array = iterator_to_array($docs);
+
+        $keys = array_keys($docs_array);
+        $this->assertContains($uuid1, $keys);
+        $this->assertContains($uuid2, $keys);
+        $this->assertNotContains($uuid3, $keys);
+
+        $this->assertEquals($uuid1, $docs_array[$uuid1]->uuid());
+        $this->assertEquals($uuid2, $docs_array[$uuid2]->uuid());
+    }
+
 }

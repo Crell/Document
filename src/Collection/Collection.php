@@ -6,10 +6,12 @@ namespace Crell\Document\Collection;
 
 use Crell\Document\Document\Document;
 use Crell\Document\Document\DocumentInterface;
+use Crell\Document\Document\DocumentSetInterface;
 use Crell\Document\Document\DocumentTrait;
 use Crell\Document\Document\LoadableDocumentTrait;
 use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Document\MutableDocumentTrait;
+use Crell\Document\Document\SimpleDocumentSet;
 use Ramsey\Uuid\Uuid;
 
 class Collection implements CollectionInterface {
@@ -165,6 +167,19 @@ class Collection implements CollectionInterface {
         $document = $this->createLoadableDocument()->loadFrom($data);
 
         return $document;
+    }
+
+    public function loadMultiple(array $uuids) : DocumentSetInterface
+    {
+        return new SimpleDocumentSet($this->loadMultipleGenerator($uuids));
+    }
+
+    protected function loadMultipleGenerator(array $uuids) : \Generator
+    {
+        $data = $this->driver->loadMultipleDefaultRevisionData($this, $uuids);
+        foreach ($data as $uuid => $record) {
+            yield $uuid => $this->createLoadableDocument()->loadFrom($record);
+        }
     }
 
     /**

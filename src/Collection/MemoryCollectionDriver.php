@@ -54,6 +54,16 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
     /**
      * {@inheritdoc}
      */
+    public function loadMultipleDefaultRevisionData(Collection $collection, array $uuids) : \Iterator
+    {
+        foreach ($uuids as $uuid) {
+            yield $uuid => $this->loadDefaultRevisionData($collection, $uuid);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
     {
         $this->storage[] = [

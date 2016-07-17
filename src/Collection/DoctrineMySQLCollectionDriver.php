@@ -123,6 +123,33 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     }
 
     /**
+     *
+     *
+     * @todo Get rid of the single load method in favor of this one.
+     *
+     * @param \Crell\Document\Collection\Collection $collection
+     * @param array $uuids
+     *
+     * @return \Iterator
+     */
+    public function loadMultipleDefaultRevisionData(Collection $collection, array $uuids) : \Iterator
+    {
+        // @todo There's probably a better/safer way to do this.
+        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ?', [
+            $uuids,
+            1,
+            $collection->language(),
+        ], [Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT, \PDO::PARAM_STR]);
+
+        foreach ($statement as $record) {
+            $data = json_decode($record['document'], true);
+            $data['timestamp'] = new \DateTimeImmutable($data['timestamp']);
+            unset($data['created']);
+            yield $data['uuid'] => $data;
+        }
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)

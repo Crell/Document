@@ -6,6 +6,7 @@ namespace Crell\Document\Collection;
 
 use Crell\Document\Document\Document;
 use Crell\Document\Document\DocumentInterface;
+use Crell\Document\Document\DocumentSetInterface;
 use Crell\Document\Document\MutableDocumentInterface;
 
 
@@ -108,6 +109,19 @@ interface CollectionInterface {
      * @return Document
      */
     public function loadLatestRevision(string $uuid) : DocumentInterface;
+
+    /**
+     * Retrieves a set of documents with the specified UUIDs.
+     *
+     * Note: The order of the returned objects is NOT guaranteed.
+     *
+     * @param string[] $uuids
+     *   An array of UUIDs of documents to load.
+     * @return DocumentSetInterface
+     *   A document set containing the specified documents. Note: If any of the
+     *   specified documents are not found, they will simply be omitted.
+     */
+    public function loadMultiple(array $uuids) : DocumentSetInterface;
 
     /**
      * Creates a new revision of the specified Document.
