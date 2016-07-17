@@ -169,11 +169,22 @@ class Collection implements CollectionInterface {
         return $document;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function loadMultiple(array $uuids) : DocumentSetInterface
     {
         return new SimpleDocumentSet($this->loadMultipleGenerator($uuids));
     }
 
+    /**
+     * Creates a generator for producing lazy-loaded documents.
+     *
+     * @param array $uuids
+     *   An array of UUIDs to load.
+     * @return \Generator
+     *   A generator that produces documents with the specified UUIDs.
+     */
     protected function loadMultipleGenerator(array $uuids) : \Generator
     {
         $data = $this->driver->loadMultipleDefaultRevisionData($this, $uuids);
