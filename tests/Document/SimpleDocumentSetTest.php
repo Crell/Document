@@ -9,7 +9,7 @@ use Crell\Document\Document\SimpleDocumentSet;
 class SimpleDocumentSetTest extends \PHPUnit_Framework_TestCase
 {
 
-    protected function testData()
+    protected function sampleData()
     {
         return new \ArrayObject([
             'a' => 'A',
@@ -21,7 +21,7 @@ class SimpleDocumentSetTest extends \PHPUnit_Framework_TestCase
 
     public function testCanReadElements()
     {
-        $set = new SimpleDocumentSet($this->testData());
+        $set = new SimpleDocumentSet($this->sampleData());
 
         $this->assertEquals('A', $set['a']);
         $this->assertEquals('C', $set['c']);
@@ -29,7 +29,7 @@ class SimpleDocumentSetTest extends \PHPUnit_Framework_TestCase
 
     public function testCanCheckForElements()
     {
-        $set = new SimpleDocumentSet($this->testData());
+        $set = new SimpleDocumentSet($this->sampleData());
 
         $this->assertTrue(isset($set['a']));
         $this->assertFalse(isset($set['e']));
@@ -37,14 +37,14 @@ class SimpleDocumentSetTest extends \PHPUnit_Framework_TestCase
 
     public function testCount()
     {
-        $set = new SimpleDocumentSet($this->testData());
+        $set = new SimpleDocumentSet($this->sampleData());
 
         $this->assertEquals(4, count($set));
     }
 
     public function testCannotSetValues()
     {
-        $set = new SimpleDocumentSet($this->testData());
+        $set = new SimpleDocumentSet($this->sampleData());
 
         $this->expectException(\LogicException::class);
 
@@ -53,7 +53,7 @@ class SimpleDocumentSetTest extends \PHPUnit_Framework_TestCase
 
     public function testCannotUnsetValues()
     {
-        $set = new SimpleDocumentSet($this->testData());
+        $set = new SimpleDocumentSet($this->sampleData());
 
         $this->expectException(\LogicException::class);
 
@@ -62,7 +62,7 @@ class SimpleDocumentSetTest extends \PHPUnit_Framework_TestCase
 
     public function testCanIterate()
     {
-        $set = new SimpleDocumentSet($this->testData());
+        $set = new SimpleDocumentSet($this->sampleData());
 
         // This function works by running through all iterations, so if it
         // works then iteration must work.
