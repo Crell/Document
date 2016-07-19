@@ -64,7 +64,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $collection->save($doc1);
 
         // Save a second revions.
-        $doc2_mut = $collection->loadMutable($uuid);
+        $doc2_mut = $collection->newRevision($uuid);
         $collection->save($doc2_mut);
 
         // Now try to reload the first revision.
@@ -88,7 +88,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $collection->save($doc1);
 
-        $doc1_en = $collection->loadMutable($uuid);
+        $doc1_en = $collection->newRevision($uuid);
 
         $doc1_fr = $doc1_en->asLanguage('fr');
 
@@ -114,7 +114,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $collection->save($doc1);
 
         // Now make a new non-default revision, aka a forward revision.
-        $doc2 = $collection->loadMutable($uuid);
+        $doc2 = $collection->newRevision($uuid);
         $collection->save($doc2, false);
 
         // This should get the default revision, aka be the same as $doc1.
@@ -136,7 +136,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $collection->save($doc1);
 
         // Now make a new non-default revision, aka a forward revision.
-        $doc2 = $collection->loadMutable($uuid);
+        $doc2 = $collection->newRevision($uuid);
         $collection->save($doc2, false);
 
         // This should get the most recent revision, aka be the same as $doc2.
@@ -159,7 +159,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         // I hate this, but I don't know how else to compare the timestamps.
         sleep(1);
 
-        $doc2 = $collection->loadMutable($uuid);
+        $doc2 = $collection->newRevision($uuid);
 
         $collection->save($doc2);
 

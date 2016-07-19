@@ -135,11 +135,14 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
-    public function loadMutable(string $uuid) : MutableDocumentInterface
+    public function newRevision(string $uuid, string $parentRevision = null) : MutableDocumentInterface
     {
         $revision = Uuid::uuid4()->toString();
 
-        $data = $this->driver->loadDefaultRevisionData($this, $uuid);
+        $data = $parentRevision
+            ? $this->driver->loadRevisionData($this, $uuid, $parentRevision)
+            : $this->driver->loadLatestRevisionData($this, $uuid);
+
         $document = $this->createMutableDocument()->loadFrom($data);
         $document->setRevisionId($revision);
         $document->setTimestamp(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));

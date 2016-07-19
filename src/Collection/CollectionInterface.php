@@ -80,7 +80,7 @@ interface CollectionInterface {
      *
      * @return Document
      */
-    public function loadMutable(string $uuid) : MutableDocumentInterface;
+    public function newRevision(string $uuid, string $parentRevision = null) : MutableDocumentInterface;
 
     /**
      * Retrieves a specific revision of a specified Document.
