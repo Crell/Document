@@ -35,11 +35,23 @@ trait DocumentTrait
     protected $language;
 
     /**
-     *
+     * The timestamp at which this revision was created, in UTC.
      *
      * @var \DateTimeImmutable
      */
     protected $timestamp;
+
+    /**
+     * The title of this document.
+     *
+     * @var string
+     */
+    protected $title;
+
+    public function title() : string
+    {
+        return $this->title;
+    }
 
     /**
      * {@inheritdoc}
@@ -94,6 +106,7 @@ trait DocumentTrait
             'revision' => $this->revision,
             'language' => $this->language,
             'timestamp' => $this->timestamp()->format('c'),
+            'title' => $this->title,
         ];
     }
 

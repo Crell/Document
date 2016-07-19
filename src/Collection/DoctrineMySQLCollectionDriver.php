@@ -44,6 +44,11 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
             ]);
             $table->addColumn('created', 'datetime');
 
+            $table->addColumn('title', 'string', [
+                'length' => 255,
+                'default' => '',
+            ]);
+
             $table->addColumn('document', 'json_array', [
                 'length' => 16777215, // This size triggers a MEDIUMTEXT field on MySQL. Postgres will use native JSON.
             ]);
@@ -151,6 +156,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
                 'revision' => $document->revision(),
                 'latest' => true,
                 'default_rev' => (int)$setDefault,
+                'title' => $document->title(),
                 'language' => $document->language(),
                 'created' => $document->timestamp()->format('Y-m-d H:i:s'),
                 'document' => json_encode($document),

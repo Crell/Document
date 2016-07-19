@@ -87,6 +87,7 @@ class Collection implements CollectionInterface {
             'language' => $this->language,
             'revision' => $revision,
             'timestamp' => new \DateTimeImmutable(),
+            'title' => '',
         ]);
 
         return $document;

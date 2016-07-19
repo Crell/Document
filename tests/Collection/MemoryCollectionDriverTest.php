@@ -83,6 +83,7 @@ class MemoryCollectionDriverTest extends \PHPUnit_Framework_TestCase
                 $this->uuid = '123';
                 $this->revision = '456';
                 $this->language = 'en';
+                $this->title = 'A';
             }
 
             public function setRevisionId(string $revision) : MutableDocumentInterface

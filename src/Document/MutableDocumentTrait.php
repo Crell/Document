@@ -11,6 +11,12 @@ namespace Crell\Document\Document;
  */
 trait MutableDocumentTrait {
 
+    public function setTitle(string $title) : MutableDocumentInterface
+    {
+        $this->title = $title;
+        return $this;
+    }
+
     /**
      * {@inheritdoc}
      */

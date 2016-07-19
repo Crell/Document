@@ -9,7 +9,7 @@ trait LoadableDocumentTrait {
 
     public function loadFrom(array $data) : self
     {
-        foreach (['uuid', 'revision', 'language'] as $key) {
+        foreach (['uuid', 'revision', 'language', 'title'] as $key) {
             $this->$key = $data[$key];
         }
 

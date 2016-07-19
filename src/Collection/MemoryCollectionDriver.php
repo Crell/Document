@@ -71,6 +71,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
             'revision' => $document->revision(),
             'language' => $document->language(),
             'document' => $document,
+            'title' => $document->title(),
             'latest' => true,
             'timestamp' => new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
             'default_rev' => (int)$setDefault,

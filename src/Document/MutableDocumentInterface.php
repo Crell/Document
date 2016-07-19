@@ -12,6 +12,8 @@ namespace Crell\Document\Document;
  */
 interface MutableDocumentInterface extends DocumentInterface {
 
+    public function setTitle(string $title) : self;
+
     /**
      * Sets the revision ID of the document.
      *

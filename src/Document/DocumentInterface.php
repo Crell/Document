@@ -10,7 +10,17 @@ namespace Crell\Document\Document;
  * @todo This likely needs to be broken up into traits and interfaces to make it
  * easier to extend.
  */
-interface DocumentInterface extends \JsonSerializable {
+interface DocumentInterface extends \JsonSerializable
+{
+    /**
+     * Returns the title of this document.
+     *
+     * This will likely be removed later, but I need editable data for testing.
+     *
+     * @return string
+     */
+    public function title() : string;
+
     /**
      * Returns the UUID of the Document.
      *
@@ -57,4 +67,5 @@ interface DocumentInterface extends \JsonSerializable {
      * {@inheritdoc}
      */
     public function jsonSerialize();
+
 }
