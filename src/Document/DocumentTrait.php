@@ -48,6 +48,8 @@ trait DocumentTrait
      */
     protected $title;
 
+    protected $parentRev;
+
     public function title() : string
     {
         return $this->title;
@@ -67,6 +69,11 @@ trait DocumentTrait
     public function revision() : string
     {
         return $this->revision;
+    }
+
+    public function parent() : string
+    {
+        return $this->parentRev;
     }
 
     /**
@@ -104,6 +111,7 @@ trait DocumentTrait
         return [
             'uuid' => $this->uuid,
             'revision' => $this->revision,
+            'parent_rev' => $this->parentRev,
             'language' => $this->language,
             'timestamp' => $this->timestamp()->format('c'),
             'title' => $this->title,

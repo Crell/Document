@@ -263,4 +263,34 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('AC', $latest->title());
     }
 
+    public function testParentRevisionIsTracked()
+    {
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $rev1 = $doc1->revision();
+        $doc1->setTitle('A');
+        $collection->save($doc1);
+
+        // Make some more revisions.
+        $doc2 = $collection->newRevision($uuid);
+        $doc2->setTitle($doc2->title() . 'B');
+        $collection->save($doc2);
+
+        // Make this revision off of the first revision, not the second.
+        $doc3 = $collection->newRevision($uuid, $doc1->revision());
+        $doc3->setTitle($doc3->title() . 'C');
+        $collection->save($doc3);
+
+        // This should get the most recent revision, aka be the same as $doc3.
+        $latest = $collection->loadLatestRevision($uuid);
+
+        $this->assertEquals('', $doc1->parent());
+        $this->assertEquals($rev1, $doc2->parent());
+        $this->assertEquals($rev1, $doc3->parent());
+    }
+
 }

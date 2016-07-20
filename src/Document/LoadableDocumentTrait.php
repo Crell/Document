@@ -13,6 +13,10 @@ trait LoadableDocumentTrait {
             $this->$key = $data[$key];
         }
 
+        // Named differently because coding standards.
+        // @todo Do something about this.
+        $this->parentRev = $data['parent_rev'];
+
         //$this->timestamp = new \DateTimeImmutable($data['timestamp']);
         $this->timestamp = $data['timestamp'];
 

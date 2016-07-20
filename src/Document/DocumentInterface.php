@@ -36,6 +36,13 @@ interface DocumentInterface extends \JsonSerializable
     public function revision() : string;
 
     /**
+     * Returns the Revision ID of this revision's parent, or empty string if it has no parent.
+     *
+     * @return string
+     */
+    public function parent() : string;
+
+    /**
      * Returns the Language Code of the Document.
      *
      * @return string

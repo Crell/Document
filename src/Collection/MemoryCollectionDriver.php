@@ -69,6 +69,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         $this->storage[] = [
             'uuid' => $document->uuid(),
             'revision' => $document->revision(),
+            'parent_rev' => $document->parent(),
             'language' => $document->language(),
             'document' => $document,
             'title' => $document->title(),

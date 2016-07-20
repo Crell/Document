@@ -22,6 +22,9 @@ class DoctrineCollectionTable extends Table
         $this->addColumn('uuid', 'string', [
             'length' => 36,
         ]);
+        $this->addColumn('parent_rev', 'string', [
+            'length' => 36,
+        ]);
         $this->addColumn('latest', 'boolean');
         // default_rev is named differently because "default" is a reserved word.
         $this->addColumn('default_rev', 'boolean');

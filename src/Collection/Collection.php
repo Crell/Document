@@ -86,6 +86,7 @@ class Collection implements CollectionInterface {
             'uuid' => $uuid,
             'language' => $this->language,
             'revision' => $revision,
+            'parent_rev' => '',
             'timestamp' => new \DateTimeImmutable(),
             'title' => '',
         ]);
@@ -143,6 +144,8 @@ class Collection implements CollectionInterface {
         $data = $parentRevision
             ? $this->driver->loadRevisionData($this, $uuid, $parentRevision)
             : $this->driver->loadLatestRevisionData($this, $uuid);
+
+        $data['parent_rev'] = $parentRevision ?: $data['revision'];
 
         $document = $this->createMutableDocument()->loadFrom($data);
         $document->setRevisionId($revision);

@@ -127,6 +127,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
             $conn->insert($table, [
                 'uuid' => $document->uuid(),
                 'revision' => $document->revision(),
+                'parent_rev' => $document->parent(),
                 'latest' => true,
                 'default_rev' => (int)$setDefault,
                 'title' => $document->title(),

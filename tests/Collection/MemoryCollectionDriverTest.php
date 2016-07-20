@@ -82,6 +82,7 @@ class MemoryCollectionDriverTest extends \PHPUnit_Framework_TestCase
             public function __construct() {
                 $this->uuid = '123';
                 $this->revision = '456';
+                $this->parentRev = '';
                 $this->language = 'en';
                 $this->title = 'A';
             }
