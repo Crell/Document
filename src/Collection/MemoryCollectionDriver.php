@@ -54,7 +54,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
     /**
      * {@inheritdoc}
      */
-    public function loadMultipleDefaultRevisionData(Collection $collection, array $uuids) : \Iterator
+    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator
     {
         foreach ($uuids as $uuid) {
             yield $uuid => $this->loadDefaultRevisionData($collection, $uuid);

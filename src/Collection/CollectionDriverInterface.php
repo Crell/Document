@@ -37,7 +37,7 @@ interface CollectionDriverInterface
 
     /**
      *
-     * @param Collection $collection
+     * @param CollectionInterface $collection
      *   The collection for which to run this driver.
      * @param string $uuid
      * @param string $revision
@@ -61,7 +61,7 @@ interface CollectionDriverInterface
      * @return \Iterator
      *   An iterator of the specifed document records.
      */
-    public function loadMultipleDefaultRevisionData(Collection $collection, array $uuids) : \Iterator;
+    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator;
 
     /**
      *

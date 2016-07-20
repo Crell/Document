@@ -98,7 +98,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
      *
      * @return \Iterator
      */
-    public function loadMultipleDefaultRevisionData(Collection $collection, array $uuids) : \Iterator
+    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator
     {
         // @todo There's probably a better/safer way to do this.
         $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ?', [
