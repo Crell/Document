@@ -6,7 +6,6 @@ namespace Crell\Document\Collection;
 
 use Crell\Document\Document\MutableDocumentInterface;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Table;
 
 class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
 {
@@ -29,33 +28,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
         $table = $this->tableName($collection->name());
 
         if (!$schemaManager->tablesExist($table)) {
-            $table = new Table($table);
-            $table->addColumn('revision', 'string', [
-                'length' => 36,
-            ]);
-            $table->addColumn('uuid', 'string', [
-                'length' => 36,
-            ]);
-            $table->addColumn('latest', 'boolean');
-            // default_rev is named differently because "default" is a reserved word.
-            $table->addColumn('default_rev', 'boolean');
-            $table->addColumn('language', 'string', [
-                'length' => 12,
-            ]);
-            $table->addColumn('created', 'datetime');
-
-            $table->addColumn('title', 'string', [
-                'length' => 255,
-                'default' => '',
-            ]);
-
-            $table->addColumn('document', 'json_array', [
-                'length' => 16777215, // This size triggers a MEDIUMTEXT field on MySQL. Postgres will use native JSON.
-            ]);
-            $table->setPrimaryKey(['revision']);
-            $table->addIndex(['uuid']);
-
-            $schemaManager->createTable($table);
+            $schemaManager->createTable(new DoctrineCollectionTable($table));
         }
     }
 
