@@ -206,4 +206,61 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($uuid2, $docs_array[$uuid2]->uuid());
     }
 
+    public function testCreateFromLatestRevision()
+    {
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $doc1->setTitle('A');
+        $collection->save($doc1);
+
+        // Make some more revisions.
+        $doc2 = $collection->newRevision($uuid);
+        $doc2->setTitle($doc2->title() . 'B');
+        $collection->save($doc2);
+
+        $doc3 = $collection->newRevision($uuid);
+        $doc3->setTitle($doc3->title() . 'C');
+        $collection->save($doc3);
+
+        // This should get the most recent revision, aka be the same as $doc3.
+        $latest = $collection->loadLatestRevision($uuid);
+
+        // We've been concatenating the title all along, so this should show
+        // that we've always used the latest revision.
+        $this->assertEquals('ABC', $latest->title());
+    }
+
+    public function testCreateFromOldRevision()
+    {
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $doc1->setTitle('A');
+        $collection->save($doc1);
+
+        // Make some more revisions.
+        $doc2 = $collection->newRevision($uuid);
+        $doc2->setTitle($doc2->title() . 'B');
+        $collection->save($doc2);
+
+        // Make this revision off of the first revision, not the second.
+        $doc3 = $collection->newRevision($uuid, $doc1->revision());
+        $doc3->setTitle($doc3->title() . 'C');
+        $collection->save($doc3);
+
+        // This should get the most recent revision, aka be the same as $doc3.
+        $latest = $collection->loadLatestRevision($uuid);
+
+        // Because this revision was built off of the first, not the latest,
+        // its title should reflect only that path.
+        $this->assertEquals('AC', $latest->title());
+    }
+
 }
