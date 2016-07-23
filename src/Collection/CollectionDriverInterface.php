@@ -64,6 +64,20 @@ interface CollectionDriverInterface
     public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator;
 
     /**
+     * Sets the revision of an entity that should be considered the default to load.
+     *
+     * @param CollectionInterface $collection
+     * @param string $uuid
+     *   The UUID of the document to change.
+     * @param string $language
+     *   The language within which to set the default.
+     * @param string $revision
+     *   The revision that should be made default.
+     *
+     */
+    public function setDefaultRevision(CollectionInterface $collection, string $uuid, string $language, string $revision);
+
+    /**
      *
      *
      * @param CollectionInterface $collection

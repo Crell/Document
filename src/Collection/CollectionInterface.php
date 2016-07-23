@@ -123,6 +123,23 @@ interface CollectionInterface {
      */
     public function loadMultiple(array $uuids) : DocumentSetInterface;
 
+
+    /**
+     * Sets a specified revision of a document as the default.
+     *
+     * @param string $uuid
+     *   The UUID of the document to change.
+     * @param string $language.
+     *   The language context within which to work.
+     * @param string $revision
+     *   The revision ID of the revision to make the default.
+     * @return self
+     *   The invoked object.
+     *
+     * @todo Add a throw when the revision ID doesn't exist.
+     */
+    public function setDefaultRevision(string $uuid, string $language, string $revision) : self;
+
     /**
      * Creates a new revision of the specified Document.
      *

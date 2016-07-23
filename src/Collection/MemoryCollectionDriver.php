@@ -64,6 +64,25 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
     /**
      * {@inheritdoc}
      */
+    public function setDefaultRevision(CollectionInterface $collection, string $uuid, string $language, string $revision)
+    {
+
+        $is_related_revision = function($item) use ($uuid, $language, $revision) {
+            return $item['uuid'] == $uuid
+            && $item['language'] == $language;
+        };
+
+        array_walk($this->storage, function(&$item) use($is_related_revision, $revision) {
+            if ($is_related_revision($item)) {
+                $item['default_rev'] = $item['revision'] == $revision;
+            }
+        });
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
     public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
     {
         $this->storage[] = [

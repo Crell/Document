@@ -118,6 +118,34 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
+    public function setDefaultRevision(CollectionInterface $collection, string $uuid, string $language, string $revision)
+    {
+        $this->conn->transactional(function (Connection $conn) use ($collection, $uuid, $language, $revision) {
+            $table = $this->tableName($collection->name());
+
+            // If the Document we just saved was flagged as the default, set
+            // all other revisions to not be the default (for the same document
+            // and language).
+
+            // @todo Fold this into a single query.
+            $this->conn->executeUpdate('UPDATE '.$table.' SET default_rev = :default WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
+                ':default' => 0,
+                ':uuid' => $uuid,
+                ':language' => $language,
+                ':revision' => $revision,
+            ]);
+            $this->conn->executeUpdate('UPDATE '.$table.' SET default_rev = :default WHERE uuid = :uuid AND language = :language AND revision = :revision ', [
+                ':default' => 1,
+                ':uuid' => $uuid,
+                ':language' => $language,
+                ':revision' => $revision,
+            ]);
+        });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
     {
         $this->conn->transactional(function (Connection $conn) use ($collection, $document, $setDefault) {

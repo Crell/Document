@@ -293,4 +293,31 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($rev1, $doc3->parent());
     }
 
+    public function testCanSetDefaultRevision()
+    {
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('coll', $driver);
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $collection->save($doc1);
+
+        // Now make a new non-default revision, aka a forward revision.
+        $doc2 = $collection->newRevision($uuid);
+        $collection->save($doc2, false);
+
+        // This should get the most default revision, aka be the same as $doc1.
+        $latest = $collection->load($uuid);
+
+        $this->assertEquals($doc1->uuid(), $latest->uuid());
+        $this->assertEquals($doc1->revision(), $latest->revision());
+
+        // Now change what the latest revision is and test again.
+        $collection->setDefaultRevision($uuid, $doc2->language(), $doc2->revision());
+
+        $latest = $collection->load($uuid);
+        $this->assertEquals($doc2->uuid(), $latest->uuid());
+        $this->assertEquals($doc2->revision(), $latest->revision());
+    }
 }

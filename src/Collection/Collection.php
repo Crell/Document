@@ -203,6 +203,15 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
+    public function setDefaultRevision(string $uuid, string $language, string $revision) : CollectionInterface
+    {
+        $this->driver->setDefaultRevision($this, $uuid, $language, $revision);
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function save(MutableDocumentInterface $document, bool $setDefault = true)
     {
         $this->driver->persist($this, $document, $setDefault);
