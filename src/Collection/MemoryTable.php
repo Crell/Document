@@ -26,10 +26,10 @@ class MemoryTable {
             foreach ($rev as $revision => $lang) {
                 foreach ($lang as $language => $data) {
                     $data['uuid'] = $uuid;
-                    $data['revision'] = $revision,
-                        $data['language'] = $language;
-                        yield $data;
-                    }
+                    $data['revision'] = $revision;
+                    $data['language'] = $language;
+                    yield $data;
+                }
             }
         }
     }
