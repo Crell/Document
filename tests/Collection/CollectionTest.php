@@ -5,12 +5,51 @@ declare (strict_types = 1);
 namespace Crell\Document\Test\Collection;
 
 use Crell\Document\Collection\Collection;
+use Crell\Document\Collection\CollectionInterface;
 use Crell\Document\Collection\MemoryCollectionDriver;
 use Crell\Document\Document\MutableDocumentInterface;
 
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
 {
+
+    protected function getCollection() : CollectionInterface
+    {
+        $driver = new MemoryCollectionDriver();
+        $collection = new Collection('test', $driver);
+        $collection->initializeSchema();
+
+        return $collection;
+    }
+
+    public function testInitializeCollection()
+    {
+        $collection = $this->getCollection();
+        $collection->initializeSchema();
+    }
+
+    public function testSaveAndLoad()
+    {
+        $collection = $this->getCollection();
+
+        $doc1 = $collection->createDocument();
+
+        $uuid = $doc1->uuid();
+
+        $collection->save($doc1);
+
+        $doc2 = $collection->newRevision($uuid);
+
+        $collection->save($doc2);
+
+        $doc3 = $collection->newRevision($uuid);
+
+        $this->assertEquals($doc1->uuid(), $doc2->uuid());
+        $this->assertEquals($doc1->uuid(), $doc3->uuid());
+        $this->assertNotEquals($doc1->revision(), $doc2->revision());
+        $this->assertNotEquals($doc1->revision(), $doc3->revision());
+        $this->assertNotEquals($doc2->revision(), $doc3->revision());
+    }
 
     public function testDefaultLanguageIsEnglish()
     {
@@ -34,8 +73,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testNoImmutableSave()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         $doc1 = $collection->createDocument();
 
@@ -53,9 +91,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadOldRevision()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
-        $collection->initializeSchema();
+        $collection = $this->getCollection();
 
         $doc1 = $collection->createDocument();
 
@@ -80,8 +116,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testLanguage()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         $doc1 = $collection->createDocument();
         $uuid = $doc1->uuid();
@@ -105,8 +140,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testDefault()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -127,8 +161,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testLatest()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -148,8 +181,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testTimestampIsSaved()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -173,8 +205,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadMultiple()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -208,8 +239,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateFromLatestRevision()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -236,8 +266,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateFromOldRevision()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -265,8 +294,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testParentRevisionIsTracked()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -295,8 +323,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
     public function testCanSetDefaultRevision()
     {
-        $driver = new MemoryCollectionDriver();
-        $collection = new Collection('coll', $driver);
+        $collection = $this->getCollection();
 
         // Save a new Document.
         $doc1 = $collection->createDocument();
@@ -320,4 +347,5 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($doc2->uuid(), $latest->uuid());
         $this->assertEquals($doc2->revision(), $latest->revision());
     }
+
 }
