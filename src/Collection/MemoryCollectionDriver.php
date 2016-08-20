@@ -37,7 +37,17 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         $result = $this->find($this->storage, function(array $item) use ($collection, $uuid) {
             return $item['uuid'] == $uuid && $item['default_rev'] == true && $item['language'] == $collection->language();
         });
-        return current(iterator_to_array($result)) ?: [];
+        $value = current(iterator_to_array($result));
+
+        if (!$value) {
+            $e = new DocumentRecordNotFoundException();
+            $e->setCollectionName($collection->name())
+                ->setUuids([$uuid])
+                ->setLanguage($collection->language());
+            throw $e;
+        }
+
+        return $value;
     }
 
     /**
@@ -56,8 +66,18 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator
     {
+        $hasData = false;
         foreach ($uuids as $uuid) {
+            $hasData = true;
             yield $uuid => $this->loadDefaultRevisionData($collection, $uuid);
+        }
+
+        if (!$hasData) {
+            $e = new DocumentRecordNotFoundException();
+            $e->setCollectionName($collection->name())
+                ->setUuids($uuids)
+                ->setLanguage($collection->language());
+            throw $e;
         }
     }
 

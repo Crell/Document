@@ -100,11 +100,21 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
             $collection->language(),
         ], [Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT, \PDO::PARAM_STR]);
 
+        $hasData = false;
         foreach ($statement as $record) {
+            $hasData = true;
             $data = json_decode($record['document'], true);
             $data['timestamp'] = new \DateTimeImmutable($data['timestamp']);
             unset($data['created']);
             yield $data['uuid'] => $data;
+        }
+
+        if (!$hasData) {
+            $e = new DocumentRecordNotFoundException();
+            $e->setCollectionName($collection->name())
+                ->setUuids($uuids)
+                ->setLanguage($collection->language());
+            throw $e;
         }
     }
 

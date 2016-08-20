@@ -6,6 +6,7 @@ namespace Crell\Document\Test\Collection;
 
 use Crell\Document\Collection\Collection;
 use Crell\Document\Collection\CollectionDriverInterface;
+use Crell\Document\Collection\DocumentRecordNotFoundException;
 use Crell\Document\Collection\MemoryCollectionDriver;
 use Crell\Document\Document\Document;
 use Crell\Document\Document\DocumentTrait;
@@ -76,6 +77,28 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $this->assertEquals($doc->uuid(), $loaded['uuid']);
         $this->assertEquals($doc->revision(), $loaded['revision']);
         $this->assertEquals($doc->language(), $loaded['language']);
+    }
+
+    public function testMissingUuid()
+    {
+        $driver = $this->getDriver();
+
+        $doc = $this->getMutableMockDocument();
+
+        $driver->persist($this->collection, $doc, true);
+
+        try {
+            // There is clearly no such UUID.
+            $loaded = $driver->loadDefaultRevisionData($this->collection, '789');
+        }
+        catch (DocumentRecordNotFoundException $e) {
+            $this->assertEquals($this->collection->name(), $e->getCollectionName());
+            $this->assertEquals(['789'], $e->getUuids());
+            $this->assertEquals($this->collection->language(), $e->getLanguage());
+            return;
+        }
+
+        $this->fail('No exception thrown or wrong exception thrown');
     }
 
     /**

@@ -129,17 +129,18 @@ class Collection implements CollectionInterface {
      */
     public function load(string $uuid) : DocumentInterface
     {
-        $data = $this->driver->loadDefaultRevisionData($this, $uuid);
-        if (!$data) {
-            $e = new DocumentNotFoundException();
+        try {
+            $data = $this->driver->loadDefaultRevisionData($this, $uuid);
+            $document = $this->createLoadableDocument()->loadFrom($data);
+            return $document;
+        }
+        catch (DocumentRecordNotFoundException $e) {
+            $e = new DocumentNotFoundException($e->getMessage(), $e->getCode(), $e);
             $e->setCollectionName($this->name())
-               ->setUuid($uuid)
+                ->setUuid($uuid)
                 ->setLanguage($this->language());
             throw $e;
         }
-        $document = $this->createLoadableDocument()->loadFrom($data);
-
-        return $document;
     }
 
     /**

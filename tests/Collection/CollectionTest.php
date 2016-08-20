@@ -366,7 +366,10 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals($collection->name(), $e->getCollectionName());
             $this->assertEquals('123', $e->getUuid());
             $this->assertEquals($collection->language(), $e->getLanguage());
+            return;
         }
+
+        $this->fail('No exception thrown or wrong exception thrown');
     }
 
 
