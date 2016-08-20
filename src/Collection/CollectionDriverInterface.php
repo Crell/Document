@@ -51,8 +51,6 @@ interface CollectionDriverInterface
      *
      * Note: The returned order of IDs is NOT guaranteed.
      *
-     * @todo Get rid of the single load method in favor of this one.
-     *
      * @param Collection $collection
      *   The collection for which to run this driver.
      * @param array $uuids

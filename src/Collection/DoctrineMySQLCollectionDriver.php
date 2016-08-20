@@ -89,14 +89,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     }
 
     /**
-     *
-     *
-     * @todo Get rid of the single load method in favor of this one.
-     *
-     * @param \Crell\Document\Collection\Collection $collection
-     * @param array $uuids
-     *
-     * @return \Iterator
+     * {@inheritdoc}
      */
     public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator
     {
