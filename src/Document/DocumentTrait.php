@@ -48,8 +48,16 @@ trait DocumentTrait
      */
     protected $title;
 
+    /**
+     * The UUID of the parent revision, if any.
+     *
+     * @var string
+     */
     protected $parentRev;
 
+    /**
+     * {@inheritdoc}
+     */
     public function title() : string
     {
         return $this->title;
@@ -117,5 +125,4 @@ trait DocumentTrait
             'title' => $this->title,
         ];
     }
-
 }
