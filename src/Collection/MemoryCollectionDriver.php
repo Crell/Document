@@ -40,7 +40,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         $value = current(iterator_to_array($result));
 
         if (!$value) {
-            $e = new DocumentRecordNotFoundException();
+            $e = new DocumentRecordsNotFoundException();
             $e->setCollectionName($collection->name())
                 ->setUuids([$uuid])
                 ->setLanguage($collection->language());
@@ -73,7 +73,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         }
 
         if (!$hasData) {
-            $e = new DocumentRecordNotFoundException();
+            $e = new DocumentRecordsNotFoundException();
             $e->setCollectionName($collection->name())
                 ->setUuids($uuids)
                 ->setLanguage($collection->language());

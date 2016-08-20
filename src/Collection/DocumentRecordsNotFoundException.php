@@ -4,7 +4,7 @@
 namespace Crell\Document\Collection;
 
 
-class DocumentRecordNotFoundException extends \InvalidArgumentException
+class DocumentRecordsNotFoundException extends \InvalidArgumentException
 {
     use DocumentIdentifierExceptionTrait;
 

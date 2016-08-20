@@ -110,7 +110,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
         }
 
         if (!$hasData) {
-            $e = new DocumentRecordNotFoundException();
+            $e = new DocumentRecordsNotFoundException();
             $e->setCollectionName($collection->name())
                 ->setUuids($uuids)
                 ->setLanguage($collection->language());
