@@ -28,6 +28,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $this->collection = new class extends Collection {
             public function __construct() {
                 $this->language = 'en';
+                $this->name = 'coll';
             }
         };
     }
@@ -42,7 +43,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
     public function testPersistType()
     {
-        $driver = new MemoryCollectionDriver();
+        $driver = $this->getDriver();
 
         $doc = $this->getMutableMockDocument();
 
@@ -51,7 +52,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
     public function testPersistAndLoadByUuid()
     {
-        $driver = new MemoryCollectionDriver();
+        $driver = $this->getDriver();
 
         $doc = $this->getMutableMockDocument();
 
@@ -65,7 +66,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
     public function testPersistAndLoadByRevision()
     {
-        $driver = new MemoryCollectionDriver();
+        $driver = $this->getDriver();
 
         $doc = $this->getMutableMockDocument();
 

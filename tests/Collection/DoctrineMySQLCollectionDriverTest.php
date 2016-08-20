@@ -35,9 +35,50 @@ class DoctrineMySQLDriverTest extends DriverTestBase
     {
         parent::setUp();
 
-        $this->ensureDatabase();
+        $this->resetDatabase();
+
+        $this->getDriver()->initializeSchema($this->collection);
     }
 
+    /**
+     * Ensures that the test database exists and is empty.
+     *
+     * @return bool
+     *   True if the database didn't exist yet, False if we had to drop and
+     *   recreate it.
+     */
+    protected function resetDatabase()
+    {
+        $connectionParams = [
+            'user' => $this->databaseUser,
+            'password' => $this->databasePass,
+            'host' => 'localhost',
+            'driver' => 'pdo_mysql',
+        ];
+        $conn = DriverManager::getConnection($connectionParams);
+
+        $schemaManager = $conn->getSchemaManager();
+        $databases = $schemaManager->listDatabases();
+        if (!in_array($this->databaseName, $databases)) {
+            $schemaManager->createDatabase($this->databaseName);
+            return true;
+        } else {
+            $schemaManager->dropDatabase($this->databaseName);
+            $schemaManager->createDatabase($this->databaseName);
+            return false;
+        }
+    }
+
+    /**
+     * Returns the live database connection.
+     *
+     * This method assumes that resetDatabase() has already been called to
+     * ensure the database itself exists. It will also lazy-instantiate the
+     * connection as needed.
+     *
+     * @return Connection
+     *   The live database connection.
+     */
     protected function getConnection() : Connection
     {
         if (empty($this->conn)) {
@@ -53,24 +94,6 @@ class DoctrineMySQLDriverTest extends DriverTestBase
         }
 
         return $this->conn;
-    }
-
-
-    protected function ensureDatabase() : bool
-    {
-        $schemaManager = $this->getConnection()->getSchemaManager();
-
-        $databases = $schemaManager->listDatabases();
-        if (!in_array($this->databaseName, $databases)) {
-            $schemaManager->createDatabase($this->databaseName);
-
-            return true;
-        } else {
-            $schemaManager->dropDatabase($this->databaseName);
-            $schemaManager->createDatabase($this->databaseName);
-
-            return false;
-        }
     }
 
     public function tearDown()
@@ -92,7 +115,7 @@ class DoctrineMySQLDriverTest extends DriverTestBase
      */
     protected function getDriver() : CollectionDriverInterface
     {
-        return new DoctrineMySQLCollectionDriver($this->conn);
+        return new DoctrineMySQLCollectionDriver($this->getConnection());
     }
 
 
