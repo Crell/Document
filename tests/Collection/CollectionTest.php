@@ -218,7 +218,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $uuid2 = $doc2->uuid();
         $collection->save($doc2);
 
-        // Save a second new Document.
+        // Save a third new Document.
         $doc3 = $collection->createDocument();
         $uuid3 = $doc3->uuid();
         $collection->save($doc3);
@@ -404,4 +404,32 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(0, $doc_array);
     }
 
+    public function testOrderedSet()
+    {
+        $collection = $this->getCollection();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid1 = $doc1->uuid();
+        $collection->save($doc1);
+
+        // Save a second new Document.
+        $doc2 = $collection->createDocument();
+        $uuid2 = $doc2->uuid();
+        $collection->save($doc2);
+
+        // Save a third new Document.
+        $doc3 = $collection->createDocument();
+        $uuid3 = $doc3->uuid();
+        $collection->save($doc3);
+
+        $docs = $collection->loadMultiple([$uuid3, $uuid1, $uuid2]);
+
+        $this->assertCount(3, $docs);
+
+        $docs_array = iterator_to_array($docs);
+
+        $keys = array_keys($docs_array);
+        $this->assertEquals([$uuid3, $uuid1, $uuid2], $keys);
+    }
 }

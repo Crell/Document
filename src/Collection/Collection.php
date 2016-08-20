@@ -190,7 +190,7 @@ class Collection implements CollectionInterface {
      */
     public function loadMultiple(array $uuids) : DocumentSetInterface
     {
-        return new SimpleDocumentSet($this->loadMultipleGenerator($uuids));
+        return new SimpleDocumentSet($this->loadMultipleGenerator($uuids), $uuids);
     }
 
     /**

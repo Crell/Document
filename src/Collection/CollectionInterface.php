@@ -113,7 +113,7 @@ interface CollectionInterface {
     /**
      * Retrieves a set of documents with the specified UUIDs.
      *
-     * Note: The order of the returned objects is NOT guaranteed.
+     * Note: Documents will be in the same order as the provided array.
      *
      * @param string[] $uuids
      *   An array of UUIDs of documents to load.
@@ -122,7 +122,6 @@ interface CollectionInterface {
      *   specified documents are not found, they will simply be omitted.
      */
     public function loadMultiple(array $uuids) : DocumentSetInterface;
-
 
     /**
      * Sets a specified revision of a document as the default.
