@@ -487,6 +487,45 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(1, $doc_array);
         $this->assertEquals($uuid2, key($doc_array));
+    }
 
+    public function testLoadArchived()
+    {
+        $collection = $this->getCollection();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid1 = $doc1->uuid();
+        $collection->save($doc1);
+
+        // Now archive it.
+        $collection->archive($doc1);
+
+        // Load it, allowing for achived.  This will throw an exception if
+        // not found.
+        $collection->load($uuid1, true);
+    }
+
+    public function testLoadArchivedMultiple()
+    {
+        $collection = $this->getCollection();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid1 = $doc1->uuid();
+        $collection->save($doc1);
+
+        // Now archive it.
+        $collection->archive($doc1);
+
+        // Add a second for good measure.
+        $doc2 = $collection->createDocument();
+        $uuid2 = $doc2->uuid();
+        $collection->save($doc2);
+
+        $docs = $collection->loadMultiple([$uuid1, $uuid2], true);
+        $doc_array = iterator_to_array($docs);
+
+        $this->assertCount(2, $doc_array);
     }
 }

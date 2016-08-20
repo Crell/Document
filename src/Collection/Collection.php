@@ -127,10 +127,10 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
-    public function load(string $uuid, bool $allowArchived = false) : DocumentInterface
+    public function load(string $uuid, bool $includeArchived = false) : DocumentInterface
     {
         try {
-            $data = $this->driver->loadDefaultRevisionData($this, $uuid);
+            $data = $this->driver->loadDefaultRevisionData($this, $uuid, $includeArchived);
             $document = $this->createLoadableDocument()->loadFrom($data);
             return $document;
         }
@@ -188,9 +188,9 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
-    public function loadMultiple(array $uuids) : DocumentSetInterface
+    public function loadMultiple(array $uuids, bool $includeArchived = false) : DocumentSetInterface
     {
-        return new SimpleDocumentSet($this->loadMultipleGenerator($uuids), $uuids);
+        return new SimpleDocumentSet($this->loadMultipleGenerator($uuids, $includeArchived), $uuids);
     }
 
     /**
@@ -198,12 +198,16 @@ class Collection implements CollectionInterface {
      *
      * @param array $uuids
      *   An array of UUIDs to load.
+     * @param bool $includeArchived
+     *   True to return the document even if it is archived in its current
+     *  revision. False otherwise.
+     *
      * @return \Generator
      *   A generator that produces documents with the specified UUIDs.
      */
-    protected function loadMultipleGenerator(array $uuids) : \Generator
+    protected function loadMultipleGenerator(array $uuids, bool $includeArchived = false) : \Generator
     {
-        $data = $this->driver->loadMultipleDefaultRevisionData($this, $uuids);
+        $data = $this->driver->loadMultipleDefaultRevisionData($this, $uuids, $includeArchived);
         foreach ($data as $uuid => $record) {
             yield $uuid => $this->createLoadableDocument()->loadFrom($record);
         }

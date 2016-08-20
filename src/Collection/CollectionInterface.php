@@ -120,11 +120,15 @@ interface CollectionInterface {
      *
      * @param string[] $uuids
      *   An array of UUIDs of documents to load.
+     * @param bool $includeArchived
+     *   True to return the document even if it is archived in its current
+     *  revision. False otherwise.
+     *
      * @return DocumentSetInterface
      *   A document set containing the specified documents. Note: If any of the
      *   specified documents are not found, they will simply be omitted.
      */
-    public function loadMultiple(array $uuids) : DocumentSetInterface;
+    public function loadMultiple(array $uuids, bool $includeArchived = false) : DocumentSetInterface;
 
     /**
      * Sets a specified revision of a document as the default.

@@ -48,9 +48,9 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid) : array
+    public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid, bool $includeArchived = false) : array
     {
-        $value = $this->loadMultipleDefaultRevisionData($collection, [$uuid])->current();
+        $value = $this->loadMultipleDefaultRevisionData($collection, [$uuid], $includeArchived)->current();
 
         if (!$value) {
             $e = new DocumentRecordNotFoundException();
@@ -102,15 +102,27 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator
+    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids, bool $includeArchived = false) : \Iterator
     {
-        // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ? AND archived = ?', [
-            $uuids,
-            1,
-            $collection->language(),
-            0,
-        ], [Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_INT]);
+        // @todo We ought to be using a query builder here.
+
+        if ($includeArchived) {
+            // @todo There's probably a better/safer way to do this.
+            $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ?', [
+                $uuids,
+                1,
+                $collection->language(),
+            ], [Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_INT]);
+        }
+        else {
+            // @todo There's probably a better/safer way to do this.
+            $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ? AND archived = ?', [
+                $uuids,
+                1,
+                $collection->language(),
+                0,
+            ], [Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_INT]);
+        }
 
         foreach ($statement as $record) {
             $data = json_decode($record['document'], true);

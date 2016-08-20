@@ -173,6 +173,39 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $found);
     }
 
+    public function testLoadArchived()
+    {
+        $driver = $this->getDriver();
+
+        $doc = $this->getMutableMockDocument('123');
+        $driver->persist($this->collection, $doc, true);
+
+        $driver->setArchived($this->collection, $doc->revision());
+
+        // This UUID is Archived, but since we allow for archived, it should be fine.
+        // An error would throw an exception.
+        $driver->loadDefaultRevisionData($this->collection, '123', true);
+    }
+
+    public function testLoadArchivedMultiple()
+    {
+        $driver = $this->getDriver();
+
+        $doc = $this->getMutableMockDocument('123');
+        $driver->persist($this->collection, $doc, true);
+
+        $driver->setArchived($this->collection, $doc->revision());
+
+        $doc2 = $this->getMutableMockDocument('abc', 'def');
+        $driver->persist($this->collection, $doc2, true);
+
+        // Only the second should be found, as the first is archived.
+        $records = $driver->loadMultipleDefaultRevisionData($this->collection, ['123', 'abc'], true);
+
+        $found = iterator_to_array($records);
+        $this->assertCount(2, $found);
+    }
+
     /**
      * Returns a mocked mutable document object.
      *

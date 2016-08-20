@@ -30,11 +30,14 @@ interface CollectionDriverInterface
      *
      * @param Collection $collection
      *   The collection for which to run this driver.
-     * @param $uuid
+     * @param string $uuid
+     *   The UUID of the document's record to load.
+     * @param bool $includeArchived
+     *   True to allow an archived revision to be loaded, False otherwise.
      *
      * @return array
      */
-    public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid) : array;
+    public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid, bool $includeArchived = false) : array;
 
     /**
      *
@@ -57,12 +60,14 @@ interface CollectionDriverInterface
      *   The collection for which to run this driver.
      * @param array $uuids
      *   An array of UUIDs to load.
+     * @param bool $includeArchived
+     *   True to allow an archived revision to be loaded, False otherwise.
      *
      * @return \Iterator
      *   An iterator of the specifed document records. It may be empty if no
      *   records were found.
      */
-    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator;
+    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids, bool $includeArchived = false) : \Iterator;
 
     /**
      * Sets the revision of an entity that should be considered the default to load.

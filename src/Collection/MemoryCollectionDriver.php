@@ -33,13 +33,14 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
     /**
      * {@inheritdoc}
      */
-    public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid) : array
+    public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid, bool $includeArchived = false) : array
     {
-        $result = $this->find($this->storage, function(array $item) use ($collection, $uuid) {
+        $result = $this->find($this->storage, function(array $item) use ($collection, $uuid, $includeArchived) {
             return $item['uuid'] == $uuid
                 && $item['default_rev'] == true
                 && $item['language'] == $collection->language()
-                && $item['archived'] == false;
+                // If archived is allowed, turn this line into a noop.
+                && $item['archived'] == ($includeArchived ? $item['archived'] : 0);
         });
         $value = current(iterator_to_array($result));
 
@@ -68,11 +69,11 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
     /**
      * {@inheritdoc}
      */
-    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator
+    public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids, bool $includeArchived = false) : \Iterator
     {
         foreach ($uuids as $uuid) {
             try {
-                $record = $this->loadDefaultRevisionData($collection, $uuid);
+                $record = $this->loadDefaultRevisionData($collection, $uuid, $includeArchived);
                 yield $uuid => $record;
             }
             catch (DocumentRecordNotFoundException $e) {
