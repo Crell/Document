@@ -6,6 +6,7 @@ namespace Crell\Document\Collection;
 
 use Crell\Document\Document\Document;
 use Crell\Document\Document\DocumentInterface;
+use Crell\Document\Document\DocumentNotFoundException;
 use Crell\Document\Document\DocumentSetInterface;
 use Crell\Document\Document\DocumentTrait;
 use Crell\Document\Document\LoadableDocumentTrait;
@@ -129,6 +130,13 @@ class Collection implements CollectionInterface {
     public function load(string $uuid) : DocumentInterface
     {
         $data = $this->driver->loadDefaultRevisionData($this, $uuid);
+        if (!$data) {
+            $e = new DocumentNotFoundException();
+            $e->setCollectionName($this->name())
+               ->setUuid($uuid)
+                ->setLanguage($this->language());
+            throw $e;
+        }
         $document = $this->createLoadableDocument()->loadFrom($data);
 
         return $document;

@@ -7,6 +7,7 @@ namespace Crell\Document\Test\Collection;
 use Crell\Document\Collection\Collection;
 use Crell\Document\Collection\CollectionInterface;
 use Crell\Document\Collection\MemoryCollectionDriver;
+use Crell\Document\Document\DocumentNotFoundException;
 use Crell\Document\Document\MutableDocumentInterface;
 
 
@@ -347,5 +348,26 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($doc2->uuid(), $latest->uuid());
         $this->assertEquals($doc2->revision(), $latest->revision());
     }
+
+
+    public function testSingleDocumentNotFound() {
+        $collection = $this->getCollection();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $collection->save($doc1);
+
+        try {
+            // There is clearly no such UUID.
+            $collection->load('123');
+        }
+        catch (DocumentNotFoundException $e) {
+            $this->assertEquals($collection->name(), $e->getCollectionName());
+            $this->assertEquals('123', $e->getUuid());
+            $this->assertEquals($collection->language(), $e->getLanguage());
+        }
+    }
+
 
 }

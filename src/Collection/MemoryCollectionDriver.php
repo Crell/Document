@@ -37,7 +37,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         $result = $this->find($this->storage, function(array $item) use ($collection, $uuid) {
             return $item['uuid'] == $uuid && $item['default_rev'] == true && $item['language'] == $collection->language();
         });
-        return current(iterator_to_array($result));
+        return current(iterator_to_array($result)) ?: [];
     }
 
     /**
