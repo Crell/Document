@@ -49,7 +49,8 @@ interface CollectionDriverInterface
     /**
      * Returns an iterable of records with the specified IDs.
      *
-     * Note: The returned order of IDs is NOT guaranteed.
+     * Note: The returned order of IDs is NOT guaranteed. If a particular ID was
+     * not present, it will be omitted.
      *
      * @param Collection $collection
      *   The collection for which to run this driver.
@@ -57,7 +58,8 @@ interface CollectionDriverInterface
      *   An array of UUIDs to load.
      *
      * @return \Iterator
-     *   An iterator of the specifed document records.
+     *   An iterator of the specifed document records. It may be empty if no
+     *   records were found.
      */
     public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator;
 

@@ -6,7 +6,7 @@ namespace Crell\Document\Test\Collection;
 
 use Crell\Document\Collection\Collection;
 use Crell\Document\Collection\CollectionDriverInterface;
-use Crell\Document\Collection\DocumentRecordNotFoundException;
+use Crell\Document\Collection\DocumentRecordsNotFoundException;
 use Crell\Document\Collection\MemoryCollectionDriver;
 use Crell\Document\Document\Document;
 use Crell\Document\Document\DocumentTrait;
@@ -91,7 +91,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
             // There is clearly no such UUID.
             $loaded = $driver->loadDefaultRevisionData($this->collection, '789');
         }
-        catch (DocumentRecordNotFoundException $e) {
+        catch (DocumentRecordsNotFoundException $e) {
             $this->assertEquals($this->collection->name(), $e->getCollectionName());
             $this->assertEquals(['789'], $e->getUuids());
             $this->assertEquals($this->collection->language(), $e->getLanguage());
@@ -99,6 +99,44 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         }
 
         $this->fail('No exception thrown or wrong exception thrown');
+    }
+
+    public function testMissingUuids()
+    {
+        $driver = $this->getDriver();
+
+        $doc = $this->getMutableMockDocument();
+
+        $driver->persist($this->collection, $doc, true);
+
+        // Only one of these UUIDs exist.
+        $records = $driver->loadMultipleDefaultRevisionData($this->collection, ['123', 'abc']);
+
+        foreach ($records as $uuid => $loaded) {
+            if ($uuid == '123') {
+                $this->assertEquals($doc->uuid(), $loaded['uuid']);
+                $this->assertEquals($doc->revision(), $loaded['revision']);
+                $this->assertEquals($doc->language(), $loaded['language']);
+            }
+            else {
+                $this->fail('Only the one UUID should be found');
+            }
+        }
+    }
+
+    public function testNoUuidsFound()
+    {
+        $driver = $this->getDriver();
+
+        $doc = $this->getMutableMockDocument();
+
+        $driver->persist($this->collection, $doc, true);
+
+        // None of these UUIDs exist.
+        $records = $driver->loadMultipleDefaultRevisionData($this->collection, ['789', 'abc']);
+
+        $found = iterator_to_array($records);
+        $this->assertEmpty($found);
     }
 
     /**

@@ -66,18 +66,18 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator
     {
-        $hasData = false;
         foreach ($uuids as $uuid) {
-            $hasData = true;
-            yield $uuid => $this->loadDefaultRevisionData($collection, $uuid);
-        }
-
-        if (!$hasData) {
-            $e = new DocumentRecordsNotFoundException();
-            $e->setCollectionName($collection->name())
-                ->setUuids($uuids)
-                ->setLanguage($collection->language());
-            throw $e;
+            try {
+                $record = $this->loadDefaultRevisionData($collection, $uuid);
+                yield $uuid => $record;
+            }
+            catch (DocumentRecordsNotFoundException $e) {
+                // The API expects us to NOT throw an exception if one of the
+                // items is missing. However, because the memory driver has
+                // the multi-call wrap the single-call, rather than vice-versa,
+                // we need to catch and swallow the exception that the single-call
+                // throws.
+            }
         }
     }
 

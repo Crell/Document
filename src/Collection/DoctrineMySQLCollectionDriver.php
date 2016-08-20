@@ -50,7 +50,18 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
      */
     public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid) : array
     {
-        return $this->loadMultipleDefaultRevisionData($collection, [$uuid])->current();
+        $value = $this->loadMultipleDefaultRevisionData($collection, [$uuid])->current();
+
+        if (!$value) {
+            $e = new DocumentRecordsNotFoundException();
+            $e->setCollectionName($collection->name())
+                ->setUuids([$uuid])
+                ->setLanguage($collection->language());
+            throw $e;
+
+        }
+
+        return $value;
     }
 
     /**
@@ -100,21 +111,11 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
             $collection->language(),
         ], [Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT, \PDO::PARAM_STR]);
 
-        $hasData = false;
         foreach ($statement as $record) {
-            $hasData = true;
             $data = json_decode($record['document'], true);
             $data['timestamp'] = new \DateTimeImmutable($data['timestamp']);
             unset($data['created']);
             yield $data['uuid'] => $data;
-        }
-
-        if (!$hasData) {
-            $e = new DocumentRecordsNotFoundException();
-            $e->setCollectionName($collection->name())
-                ->setUuids($uuids)
-                ->setLanguage($collection->language());
-            throw $e;
         }
     }
 
