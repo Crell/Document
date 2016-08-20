@@ -101,7 +101,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $this->fail('No exception thrown or wrong exception thrown');
     }
 
-    public function testMissingUuids()
+    public function testSomeUuidsFound()
     {
         $driver = $this->getDriver();
 
@@ -110,18 +110,12 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $driver->persist($this->collection, $doc, true);
 
         // Only one of these UUIDs exist.
-        $records = $driver->loadMultipleDefaultRevisionData($this->collection, ['123', 'abc']);
+        $loaded = $driver->loadMultipleDefaultRevisionData($this->collection, ['123', 'abc']);
 
-        foreach ($records as $uuid => $loaded) {
-            if ($uuid == '123') {
-                $this->assertEquals($doc->uuid(), $loaded['uuid']);
-                $this->assertEquals($doc->revision(), $loaded['revision']);
-                $this->assertEquals($doc->language(), $loaded['language']);
-            }
-            else {
-                $this->fail('Only the one UUID should be found');
-            }
-        }
+        $records = iterator_to_array($loaded);
+
+        $this->assertCount(1, $records);
+        $this->assertEquals('123', key($records));
     }
 
     public function testNoUuidsFound()
