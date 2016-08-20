@@ -12,3 +12,5 @@ sudo: false
 cache:
   directories:
     - $HOME/.composer/cache
+
+script: phpunit --testsuite TravisCITests
