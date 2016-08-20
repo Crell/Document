@@ -6,7 +6,6 @@ namespace Crell\Document\Collection;
 
 trait DocumentIdentifierExceptionTrait
 {
-
     /**
      * The name of the collection that triggered this exception.
      *
@@ -20,6 +19,35 @@ trait DocumentIdentifierExceptionTrait
      * @var string
      */
     protected $language;
+
+    /**
+     * The UUID of the document that was missing.
+     *
+     * @var string
+     */
+    protected $uuid;
+
+    /**
+     * Returns the UUID of the missing document.
+     *
+     * @return string
+     */
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * Sets the UUID of the missing document
+     *
+     * @param string $uuid
+     * @return self
+     */
+    public function setUuid(string $uuid) : self
+    {
+        $this->uuid = $uuid;
+        return $this;
+    }
 
     /**
      * Returns the language code of the missing document.
@@ -66,5 +94,4 @@ trait DocumentIdentifierExceptionTrait
     {
         return $this->collectionName;
     }
-
 }

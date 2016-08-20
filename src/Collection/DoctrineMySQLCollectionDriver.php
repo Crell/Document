@@ -53,9 +53,9 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
         $value = $this->loadMultipleDefaultRevisionData($collection, [$uuid])->current();
 
         if (!$value) {
-            $e = new DocumentRecordsNotFoundException();
+            $e = new DocumentRecordNotFoundException();
             $e->setCollectionName($collection->name())
-                ->setUuids([$uuid])
+                ->setUuid($uuid)
                 ->setLanguage($collection->language());
             throw $e;
 

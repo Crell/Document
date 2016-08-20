@@ -40,9 +40,9 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         $value = current(iterator_to_array($result));
 
         if (!$value) {
-            $e = new DocumentRecordsNotFoundException();
+            $e = new DocumentRecordNotFoundException();
             $e->setCollectionName($collection->name())
-                ->setUuids([$uuid])
+                ->setUuid($uuid)
                 ->setLanguage($collection->language());
             throw $e;
         }
@@ -71,7 +71,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
                 $record = $this->loadDefaultRevisionData($collection, $uuid);
                 yield $uuid => $record;
             }
-            catch (DocumentRecordsNotFoundException $e) {
+            catch (DocumentRecordNotFoundException $e) {
                 // The API expects us to NOT throw an exception if one of the
                 // items is missing. However, because the memory driver has
                 // the multi-call wrap the single-call, rather than vice-versa,

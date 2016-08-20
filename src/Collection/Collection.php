@@ -134,7 +134,7 @@ class Collection implements CollectionInterface {
             $document = $this->createLoadableDocument()->loadFrom($data);
             return $document;
         }
-        catch (DocumentRecordsNotFoundException $e) {
+        catch (DocumentRecordNotFoundException $e) {
             $e = new DocumentNotFoundException($e->getMessage(), $e->getCode(), $e);
             $e->setCollectionName($this->name())
                 ->setUuid($uuid)
