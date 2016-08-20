@@ -70,4 +70,34 @@ class SimpleDocumentSetTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(4, $set_array);
     }
+
+    public function testOrderedSet()
+    {
+        $set = new SimpleDocumentSet($this->sampleData(), ['b', 'c', 'a', 'd']);
+
+        $set_array = iterator_to_array($set);
+        $keys = array_keys($set_array);
+
+        $this->assertEquals(['b', 'c', 'a', 'd'], $keys);
+    }
+
+    public function testIncompleteOrderedSet()
+    {
+        $set = new SimpleDocumentSet($this->sampleData(), ['b', 'd']);
+
+        $set_array = iterator_to_array($set);
+        $keys = array_keys($set_array);
+
+        $this->assertEquals(['b', 'd', 'a', 'c'], $keys);
+    }
+
+    public function testOversizedOrderedSet()
+    {
+        $set = new SimpleDocumentSet($this->sampleData(), ['b', 'd', 'q']);
+
+        $set_array = iterator_to_array($set);
+        $keys = array_keys($set_array);
+
+        $this->assertEquals(['b', 'd', 'a', 'c'], $keys);
+    }
 }

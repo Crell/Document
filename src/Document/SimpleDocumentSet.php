@@ -10,9 +10,25 @@ class SimpleDocumentSet implements DocumentSetInterface, \IteratorAggregate
 
     protected $values = [];
 
-    public function __construct(\Traversable $iterator)
+    public function __construct(\Traversable $iterator, $order = [])
     {
-        $this->values = iterator_to_array($iterator);
+        $values = iterator_to_array($iterator);
+
+        if ($order) {
+            foreach ($order as $key) {
+                if (array_key_exists($key, $values)) {
+                    $this->values[$key] = $values[$key];
+                    unset($values[$key]);
+                }
+            }
+            // Any unordered items go at the end, in whatever order.
+            if ($values) {
+                $this->values += $values;
+            }
+        }
+        else {
+            $this->values = $values;
+        }
     }
 
     /**
