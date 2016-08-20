@@ -350,7 +350,8 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testSingleDocumentNotFound() {
+    public function testSingleDocumentNotFound()
+    {
         $collection = $this->getCollection();
 
         // Save a new Document.
@@ -372,5 +373,35 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->fail('No exception thrown or wrong exception thrown');
     }
 
+    public function testSomeDocumentsFound()
+    {
+        $collection = $this->getCollection();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $collection->save($doc1);
+
+        $docs = $collection->loadMultiple([$uuid, '123']);
+        $doc_array = iterator_to_array($docs);
+
+        $this->assertCount(1, $doc_array);
+        $this->assertEquals($uuid, key($doc_array));
+    }
+
+    public function testNoDocumentsFound()
+    {
+        $collection = $this->getCollection();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+        $collection->save($doc1);
+
+        $docs = $collection->loadMultiple(['123', '456']);
+        $doc_array = iterator_to_array($docs);
+
+        $this->assertCount(0, $doc_array);
+    }
 
 }
