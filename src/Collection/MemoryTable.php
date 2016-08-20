@@ -5,33 +5,69 @@ declare (strict_types = 1);
 namespace Crell\Document\Collection;
 
 /**
- * @todo Maybe finish this at some point.
+ * An in-memory table-esque collection, suitable for mocking SQL drivers.
  */
-class MemoryTable {
+class MemoryTable
+{
+
+    /**
+     * The actual data storage, as an array of associative arrays.
+     *
+     * @var array
+     */
     protected $storage;
 
-    protected function getKeys() {
-        return [];
+    /**
+     * Adds a record to the storage.
+     *
+     * @param array $record
+     *   The record to add.
+     *
+     * @return static
+     */
+    public function insert(array $record)
+    {
+        $this->storage[] = $record;
+        return $this;
     }
 
-    protected function iterateStorage() {
-        foreach ($this->getKeys() as $key_name) {
-            $key = key($this->storage);
-            $val = current($this->storage);
-            $key_array[$key_name] = $key;
+    /**
+     * Modifies selected records in the dataset.
+     *
+     * @param callable $filter
+     *   A callable taking a single array parameter. It must return True if
+     *   that passed record should be modified, False otherwise.
+     * @param callable $change
+     *   A callable taking a single array parameter by reference. It should
+     *   modify the record in-place as desired.
+     *
+     * @return static
+     */
+    public function update(callable $filter, callable $change)
+    {
+        array_walk($this->storage, function(&$item) use ($filter, $change) {
+            if ($filter($item)) {
+                $change($item);
+            }
+        });
+        return $this;
+    }
 
-        }
-
-        foreach ($this->storage as $uuid => $rev) {
-            foreach ($rev as $revision => $lang) {
-                foreach ($lang as $language => $data) {
-                    $data['uuid'] = $uuid;
-                    $data['revision'] = $revision;
-                    $data['language'] = $language;
-                    yield $data;
-                }
+    /**
+     * Returns selected records in the dataset by a specified callable filter.
+     *
+     * @param callable $filter
+     *   A callable taking a single array parameter. It must return True if
+     *   that passed record should be returned, False otherwise.
+     *
+     * @return \Generator
+     */
+    public function find(callable $filter)
+    {
+        foreach ($this->storage as $item) {
+            if ($filter($item)) {
+                yield $item;
             }
         }
     }
-
 }

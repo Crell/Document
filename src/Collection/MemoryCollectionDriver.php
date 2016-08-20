@@ -4,19 +4,28 @@ declare (strict_types = 1);
 
 namespace Crell\Document\Collection;
 
-use Crell\Document\Document\DocumentInterface;
 use Crell\Document\Document\MutableDocumentInterface;
 
 class MemoryCollectionDriver implements CollectionDriverInterface {
 
-    protected $storage = [];
+    /**
+     *
+     *
+     * @var MemoryTable
+     */
+    protected $storage;
+
+    public function __construct()
+    {
+        $this->storage = new MemoryTable();
+    }
 
     /**
      * {@inheritdoc}
      */
     public function initializeSchema(CollectionInterface $collection)
     {
-        $this->storage = [];
+        $this->storage = new MemoryTable();
     }
 
     /**
@@ -24,7 +33,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function loadLatestRevisionData(CollectionInterface $collection, string $uuid) : array
     {
-        $result = $this->find($this->storage, function(array $item) use ($collection, $uuid) {
+        $result = $this->storage->find(function(array $item) use ($collection, $uuid) {
             return $item['uuid'] == $uuid && $item['latest'] == true && $item['language'] == $collection->language();
         });
         return current(iterator_to_array($result));
@@ -35,7 +44,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid, bool $includeArchived = false) : array
     {
-        $result = $this->find($this->storage, function(array $item) use ($collection, $uuid, $includeArchived) {
+        $result = $this->storage->find(function(array $item) use ($collection, $uuid, $includeArchived) {
             return $item['uuid'] == $uuid
                 && $item['default_rev'] == true
                 && $item['language'] == $collection->language()
@@ -60,7 +69,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function loadRevisionData(CollectionInterface $collection, string $uuid, string $revision) : array
     {
-        $result = $this->find($this->storage, function(array $item) use ($uuid, $revision) {
+        $result = $this->storage->find(function(array $item) use ($uuid, $revision) {
             return $item['uuid'] == $uuid && $item['revision'] == $revision;
         });
         return current(iterator_to_array($result));
@@ -97,10 +106,8 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
             && $item['language'] == $language;
         };
 
-        array_walk($this->storage, function(&$item) use($is_related_revision, $revision) {
-            if ($is_related_revision($item)) {
-                $item['default_rev'] = $item['revision'] == $revision;
-            }
+        $this->storage->update($is_related_revision, function(&$item) use($revision) {
+            $item['default_rev'] = $item['revision'] == $revision;
         });
     }
 
@@ -110,7 +117,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
     {
-        $this->storage[] = [
+        $this->storage->insert([
             'uuid' => $document->uuid(),
             'revision' => $document->revision(),
             'parent_rev' => $document->parent(),
@@ -121,7 +128,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
             'archived' => false,
             'timestamp' => new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
             'default_rev' => (int)$setDefault,
-        ];
+        ]);
 
         $is_related_doc = function($item) use ($document) {
             return $item['uuid'] == $document->uuid()
@@ -131,20 +138,16 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
 
         // Set all revisions of this Document of the same language to not be
         // the latest, except the one we just saved as the latest.
-        array_walk($this->storage, function(&$item) use ($is_related_doc) {
-            if ($is_related_doc($item)) {
-                $item['latest'] = false;
-            }
+        $this->storage->update($is_related_doc, function (&$item) {
+            $item['latest'] = false;
         });
 
         if ($setDefault) {
             // If the Document we just saved was flagged as the default, set
             // all other revisions to not be the default (for the same document
             // and language).
-            array_walk($this->storage, function(&$item) use ($is_related_doc) {
-                if ($is_related_doc($item)) {
-                    $item['default_rev'] = false;
-                }
+            $this->storage->update($is_related_doc, function(&$item) {
+                $item['default_rev'] = false;
             });
         }
     }
@@ -153,29 +156,10 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      * {@inheritdoc}
      */
     public function setArchived(CollectionInterface $collection, string $revision) {
-        array_walk($this->storage, function(&$item) use ($collection, $revision) {
-            if ($item['revision'] == $revision) {
-                $item['archived'] = true;
-            }
+        $this->storage->update(function ($item) use ($revision) {
+            return $item['revision'] == $revision;
+        }, function(&$item) {
+            $item['archived'] = true;
         });
-    }
-
-    /**
-     * Filters an iterable by a specified callable filter.
-     *
-     * @param \Traversable|array $collection
-     *   The collection to filter.
-     * @param callable $filter
-     *   The filter function to apply.
-     *
-     * @return \Generator
-     */
-    protected function find($collection, callable $filter)
-    {
-        foreach ($collection as $item) {
-            if ($filter($item)) {
-                yield $item;
-            }
-        }
     }
 }
