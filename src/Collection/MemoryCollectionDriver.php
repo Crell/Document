@@ -4,6 +4,7 @@ declare (strict_types = 1);
 
 namespace Crell\Document\Collection;
 
+use Crell\Document\Document\DocumentInterface;
 use Crell\Document\Document\MutableDocumentInterface;
 
 class MemoryCollectionDriver implements CollectionDriverInterface {
@@ -35,7 +36,10 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
     public function loadDefaultRevisionData(CollectionInterface $collection, string $uuid) : array
     {
         $result = $this->find($this->storage, function(array $item) use ($collection, $uuid) {
-            return $item['uuid'] == $uuid && $item['default_rev'] == true && $item['language'] == $collection->language();
+            return $item['uuid'] == $uuid
+                && $item['default_rev'] == true
+                && $item['language'] == $collection->language()
+                && $item['archived'] == false;
         });
         $value = current(iterator_to_array($result));
 
@@ -113,6 +117,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
             'document' => $document,
             'title' => $document->title(),
             'latest' => true,
+            'archived' => false,
             'timestamp' => new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
             'default_rev' => (int)$setDefault,
         ];
@@ -141,6 +146,17 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
                 }
             });
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setArchived(CollectionInterface $collection, string $revision) {
+        array_walk($this->storage, function(&$item) use ($collection, $revision) {
+            if ($item['revision'] == $revision) {
+                $item['archived'] = true;
+            }
+        });
     }
 
     /**

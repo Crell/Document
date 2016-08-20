@@ -4,6 +4,7 @@ declare (strict_types = 1);
 
 namespace Crell\Document\Collection;
 
+use Crell\Document\Document\DocumentInterface;
 use Crell\Document\Document\MutableDocumentInterface;
 
 interface CollectionDriverInterface
@@ -52,7 +53,7 @@ interface CollectionDriverInterface
      * Note: The returned order of IDs is NOT guaranteed. If a particular ID was
      * not present, it will be omitted.
      *
-     * @param Collection $collection
+     * @param CollectionInterface $collection
      *   The collection for which to run this driver.
      * @param array $uuids
      *   An array of UUIDs to load.
@@ -67,6 +68,7 @@ interface CollectionDriverInterface
      * Sets the revision of an entity that should be considered the default to load.
      *
      * @param CollectionInterface $collection
+     *   The collection for which to run this driver.
      * @param string $uuid
      *   The UUID of the document to change.
      * @param string $language
@@ -81,10 +83,27 @@ interface CollectionDriverInterface
      *
      *
      * @param CollectionInterface $collection
+     *   The collection for which to run this driver.
      * @param MutableDocumentInterface $document
+     *   The document to persist.
      * @param bool $setDefault
+     *   True to set this revision as the default revision. False if not.
      *
      * @return mixed
      */
     public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault);
+
+    /**
+     * Marks the specified revision of a document as archived.
+     *
+     * It is a business error to ever call this on a method that is not the
+     * default revision, but that error handling is the responsibility of
+     * the Collection.
+     *
+     * @param CollectionInterface $collection
+     *   The collection for which to run this driver.
+     * @param string $revision
+     *   The document to archive.
+     */
+    public function setArchived(CollectionInterface $collection, string $revision);
 }

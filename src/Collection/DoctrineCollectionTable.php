@@ -28,6 +28,7 @@ class DoctrineCollectionTable extends Table
         $this->addColumn('latest', 'boolean');
         // default_rev is named differently because "default" is a reserved word.
         $this->addColumn('default_rev', 'boolean');
+        $this->addColumn('archived', 'boolean');
         $this->addColumn('language', 'string', [
             'length' => 12,
         ]);

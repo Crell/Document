@@ -63,11 +63,14 @@ interface CollectionInterface {
      *
      * @param string $uuid
      *   The UUID of the Document to load.
+     * @param bool $includeArchived
+     *   True to return the document even if it is archived in its current
+     *  revision. False otherwise.
      *
      * @return Document
      *   The corresponding document.
      */
-    public function load(string $uuid) : DocumentInterface;
+    public function load(string $uuid, bool $includeArchived = false) : DocumentInterface;
 
     /**
      * Retrieves a specified document, with special Mutable methods.
@@ -155,8 +158,19 @@ interface CollectionInterface {
      *
      * @throws \Exception
      */
-    public function save(
-        MutableDocumentInterface $document,
-        bool $setDefault = TRUE
-    );
+    public function save(MutableDocumentInterface $document, bool $setDefault = TRUE);
+
+    /**
+     * Marks the current default revision of a document archived.
+     *
+     * Archived documents will not appear in load() or loadMultiple() calls
+     * by default.
+     *
+     * Note: This MAY get subsumed into moderation rules later rather than something
+     * that can be set directly.  TBD.
+     *
+     * @param DocumentInterface $document
+     *   The document to archive.
+     */
+    public function archive(DocumentInterface $document);
 }

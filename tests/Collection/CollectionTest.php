@@ -432,4 +432,61 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $keys = array_keys($docs_array);
         $this->assertEquals([$uuid3, $uuid1, $uuid2], $keys);
     }
+
+    public function testArchiveOne()
+    {
+        $collection = $this->getCollection();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid1 = $doc1->uuid();
+        $collection->save($doc1);
+
+        // Now archive it.
+        $collection->archive($doc1);
+
+        // Add a second for good measure.
+        $doc2 = $collection->createDocument();
+        $uuid2 = $doc2->uuid();
+        $collection->save($doc2);
+
+        // It should now behave as if it doesn't exist.
+        try {
+            $collection->load($uuid1);
+            $this->fail('No exception thrown or wrong exception thrown');
+        }
+        catch (DocumentNotFoundException $e) {
+            $this->assertEquals($collection->name(), $e->getCollectionName());
+            $this->assertEquals($uuid1, $e->getUuid());
+            $this->assertEquals($collection->language(), $e->getLanguage());
+        }
+
+        // But the other document should still be available.
+        $collection->load($uuid2);
+    }
+
+    public function testArchiveLoadMultiple()
+    {
+        $collection = $this->getCollection();
+
+        // Save a new Document.
+        $doc1 = $collection->createDocument();
+        $uuid1 = $doc1->uuid();
+        $collection->save($doc1);
+
+        // Now archive it.
+        $collection->archive($doc1);
+
+        // Add a second for good measure.
+        $doc2 = $collection->createDocument();
+        $uuid2 = $doc2->uuid();
+        $collection->save($doc2);
+
+        $docs = $collection->loadMultiple([$uuid1, $uuid2]);
+        $doc_array = iterator_to_array($docs);
+
+        $this->assertCount(1, $doc_array);
+        $this->assertEquals($uuid2, key($doc_array));
+
+    }
 }

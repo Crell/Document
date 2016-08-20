@@ -105,11 +105,12 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
     public function loadMultipleDefaultRevisionData(CollectionInterface $collection, array $uuids) : \Iterator
     {
         // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ?', [
+        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ? AND archived = ?', [
             $uuids,
             1,
             $collection->language(),
-        ], [Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT, \PDO::PARAM_STR]);
+            0,
+        ], [Connection::PARAM_INT_ARRAY, \PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_INT]);
 
         foreach ($statement as $record) {
             $data = json_decode($record['document'], true);
@@ -161,6 +162,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
                 'revision' => $document->revision(),
                 'parent_rev' => $document->parent(),
                 'latest' => true,
+                'archived' => 0,
                 'default_rev' => (int)$setDefault,
                 'title' => $document->title(),
                 'language' => $document->language(),
@@ -189,6 +191,15 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
                 ]);
             }
         });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setArchived(CollectionInterface $collection, string $revision)
+    {
+        $table = $this->tableName($collection->name());
+        $this->conn->update($table, ['archived' => 1], ['revision' => $revision]);
     }
 
     /**

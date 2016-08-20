@@ -127,7 +127,7 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
-    public function load(string $uuid) : DocumentInterface
+    public function load(string $uuid, bool $allowArchived = false) : DocumentInterface
     {
         try {
             $data = $this->driver->loadDefaultRevisionData($this, $uuid);
@@ -224,5 +224,14 @@ class Collection implements CollectionInterface {
     public function save(MutableDocumentInterface $document, bool $setDefault = true)
     {
         $this->driver->persist($this, $document, $setDefault);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function archive(DocumentInterface $document)
+    {
+        $defaultRevisionData = $this->driver->loadDefaultRevisionData($this, $document->uuid());
+        $this->driver->setArchived($this, $defaultRevisionData['revision']);
     }
 }

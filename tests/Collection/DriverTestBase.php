@@ -7,7 +7,6 @@ namespace Crell\Document\Test\Collection;
 use Crell\Document\Collection\Collection;
 use Crell\Document\Collection\CollectionDriverInterface;
 use Crell\Document\Collection\DocumentRecordNotFoundException;
-use Crell\Document\Collection\MemoryCollectionDriver;
 use Crell\Document\Document\Document;
 use Crell\Document\Document\DocumentTrait;
 use Crell\Document\Document\MutableDocumentInterface;
@@ -90,15 +89,13 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         try {
             // There is clearly no such UUID.
             $loaded = $driver->loadDefaultRevisionData($this->collection, '789');
+            $this->fail('No exception thrown or wrong exception thrown');
         }
         catch (DocumentRecordNotFoundException $e) {
             $this->assertEquals($this->collection->name(), $e->getCollectionName());
             $this->assertEquals('789', $e->getUuid());
             $this->assertEquals($this->collection->language(), $e->getLanguage());
-            return;
         }
-
-        $this->fail('No exception thrown or wrong exception thrown');
     }
 
     public function testSomeUuidsFound()
@@ -133,19 +130,62 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($found);
     }
 
+    public function testSetArchivedSingle()
+    {
+        $driver = $this->getDriver();
+
+        $doc = $this->getMutableMockDocument('123');
+        $driver->persist($this->collection, $doc, true);
+
+        $driver->setArchived($this->collection, $doc->revision());
+
+        $doc2 = $this->getMutableMockDocument('abc', 'def');
+        $driver->persist($this->collection, $doc2, true);
+
+        try {
+            // This UUID is Archived.
+            $loaded = $driver->loadDefaultRevisionData($this->collection, '123');
+            $this->fail('No exception thrown or wrong exception thrown');
+        }
+        catch (DocumentRecordNotFoundException $e) {
+            $this->assertEquals($this->collection->name(), $e->getCollectionName());
+            $this->assertEquals('123', $e->getUuid());
+            $this->assertEquals($this->collection->language(), $e->getLanguage());
+        }
+    }
+
+    public function testSetArchivedMultiple()
+    {
+        $driver = $this->getDriver();
+
+        $doc = $this->getMutableMockDocument('123');
+        $driver->persist($this->collection, $doc, true);
+
+        $driver->setArchived($this->collection, $doc->revision());
+
+        $doc2 = $this->getMutableMockDocument('abc', 'def');
+        $driver->persist($this->collection, $doc2, true);
+
+        // Only the second should be found, as the first is archived.
+        $records = $driver->loadMultipleDefaultRevisionData($this->collection, ['123', 'abc']);
+
+        $found = iterator_to_array($records);
+        $this->assertCount(1, $found);
+    }
+
     /**
      * Returns a mocked mutable document object.
      *
      * @return MutableDocumentInterface
      */
-    protected function getMutableMockDocument() : MutableDocumentInterface
+    protected function getMutableMockDocument(string $uuid = '123', string $revision = '456') : MutableDocumentInterface
     {
-        $doc = new class extends Document implements MutableDocumentInterface {
+        $doc = new class($uuid, $revision) extends Document implements MutableDocumentInterface {
             use DocumentTrait, MutableDocumentTrait;
 
-            public function __construct() {
-                $this->uuid = '123';
-                $this->revision = '456';
+            public function __construct(string $uuid, string $revision) {
+                $this->uuid = $uuid;
+                $this->revision = $revision;
                 $this->parentRev = '';
                 $this->language = 'en';
                 $this->title = 'A';
