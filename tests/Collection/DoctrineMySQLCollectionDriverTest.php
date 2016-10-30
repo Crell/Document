@@ -4,8 +4,8 @@ declare (strict_types = 1);
 
 namespace Crell\Document\Test\Collection;
 
-use Crell\Document\Collection\CollectionDriverInterface;
-use Crell\Document\Collection\DoctrineMySQLCollectionDriver;
+use Crell\Document\Driver\CollectionDriverInterface;
+use Crell\Document\Driver\DoctrineMySQL\DoctrineMySQLCollectionDriver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 

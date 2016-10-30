@@ -2,7 +2,7 @@
 
 declare (strict_types = 1);
 
-namespace Crell\Document\Collection;
+namespace Crell\Document\Driver\DoctrineMySQL;
 
 use Doctrine\DBAL\Schema\Table;
 

@@ -13,6 +13,7 @@ use Crell\Document\Document\LoadableDocumentTrait;
 use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Document\MutableDocumentTrait;
 use Crell\Document\Document\SimpleDocumentSet;
+use Crell\Document\Driver\CollectionDriverInterface;
 use Ramsey\Uuid\Uuid;
 
 class Collection implements CollectionInterface {

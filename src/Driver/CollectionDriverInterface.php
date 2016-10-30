@@ -2,10 +2,11 @@
 
 declare (strict_types = 1);
 
-namespace Crell\Document\Collection;
+namespace Crell\Document\Driver;
 
-use Crell\Document\Document\DocumentInterface;
+use Crell\Document\Collection\CollectionInterface;
 use Crell\Document\Document\MutableDocumentInterface;
+
 
 interface CollectionDriverInterface
 {
@@ -18,7 +19,7 @@ interface CollectionDriverInterface
 
     /**
      *
-     * @param Collection $collection
+     * @param CollectionInterface $collection
      *   The collection for which to run this driver.
      * @param string $uuid
      *
@@ -28,7 +29,7 @@ interface CollectionDriverInterface
 
     /**
      *
-     * @param Collection $collection
+     * @param CollectionInterface $collection
      *   The collection for which to run this driver.
      * @param string $uuid
      *   The UUID of the document's record to load.

@@ -2,7 +2,7 @@
 
 declare (strict_types = 1);
 
-namespace Crell\Document\Collection;
+namespace Crell\Document\Driver\Memory;
 
 /**
  * An in-memory table-esque collection, suitable for mocking SQL drivers.
