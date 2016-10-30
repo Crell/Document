@@ -9,6 +9,7 @@ use Crell\Document\Collection\DocumentRecordNotFoundException;
 use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Driver\CollectionDriverInterface;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Table;
 
 class DoctrineMySQLDriver implements CollectionDriverInterface
 {
@@ -31,6 +32,20 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
         $tables = [
             DocumentsTable::class,
         ];
+
+        // These have to be done in a certain order and inter-relate, for FK purposes.
+        $documentTable = new DocumentsTable($this->tableName($collection->name(), DocumentsTable::name()));
+        $commitsTable = new CommitsTable($this->tableName($collection->name(), CommitsTable::name()));
+        $branchesTable = new BranchesTable($this->tableName($collection->name(), BranchesTable::name()), $commitsTable);
+        $commitParentsTable = new CommitParentsTable($this->tableName($collection->name(), CommitParentsTable::name()), $commitsTable);
+        $commitDocumentsTable = new CommitDocumentsTable($this->tableName($collection->name(), CommitDocumentsTable::name()), $documentTable, $commitsTable);
+
+        /** @var Table $table */
+        foreach ([$documentTable, $commitsTable, $branchesTable, $commitParentsTable, $commitDocumentsTable] as $table) {
+            if (!$schemaManager->tablesExist($table->getName())) {
+                $schemaManager->createTable($table);
+            }
+        }
 
         /** @var DocumentDefinitionTableInterface $table */
         foreach ($tables as $table) {
