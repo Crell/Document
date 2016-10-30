@@ -9,7 +9,7 @@ use Doctrine\DBAL\Schema\Table;
 /**
  * Table definition for a Collection.
  */
-class DoctrineCollectionTable extends Table
+class CollectionTable extends Table
 {
 
     public function __construct($tableName)

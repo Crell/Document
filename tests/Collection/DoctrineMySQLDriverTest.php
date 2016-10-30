@@ -5,7 +5,7 @@ declare (strict_types = 1);
 namespace Crell\Document\Test\Collection;
 
 use Crell\Document\Driver\CollectionDriverInterface;
-use Crell\Document\Driver\DoctrineMySQL\DoctrineMySQLCollectionDriver;
+use Crell\Document\Driver\DoctrineMySQL\DoctrineMySQLDriver;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
@@ -115,7 +115,7 @@ class DoctrineMySQLDriverTest extends DriverTestBase
      */
     protected function getDriver() : CollectionDriverInterface
     {
-        return new DoctrineMySQLCollectionDriver($this->getConnection());
+        return new DoctrineMySQLDriver($this->getConnection());
     }
 
 

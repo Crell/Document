@@ -10,7 +10,7 @@ use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Driver\CollectionDriverInterface;
 use Doctrine\DBAL\Connection;
 
-class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
+class DoctrineMySQLDriver implements CollectionDriverInterface
 {
     /**
      * @var \Doctrine\DBAL\Connection
@@ -31,7 +31,7 @@ class DoctrineMySQLCollectionDriver implements CollectionDriverInterface
         $table = $this->tableName($collection->name());
 
         if (!$schemaManager->tablesExist($table)) {
-            $schemaManager->createTable(new DoctrineCollectionTable($table));
+            $schemaManager->createTable(new CollectionTable($table));
         }
     }
 
