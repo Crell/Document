@@ -28,10 +28,16 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
     {
         $schemaManager = $this->conn->getSchemaManager();
 
-        $table = $this->tableName($collection->name());
+        $tables = [
+            DocumentsTable::class,
+        ];
 
-        if (!$schemaManager->tablesExist($table)) {
-            $schemaManager->createTable(new CollectionTable($table));
+        /** @var DocumentDefinitionTableInterface $table */
+        foreach ($tables as $table) {
+            $tableName = $this->tableName($collection->name(), $table::name());
+            if (!$schemaManager->tablesExist($tableName)) {
+                $schemaManager->createTable(new $table($tableName));
+            }
         }
     }
 
@@ -43,9 +49,14 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
      * @return string
      *   The name of the table.
      */
-    protected function tableName(string $collection) : string
+    protected function tableName(string $collection, string $table) : string
     {
-        return 'collection_' . $collection;
+        // @todo Change the first document to something else when we rename
+        // this library.
+        $name = ['document', $collection, $table];
+
+        return implode('_', $name);
+        //return 'document_' . $collection . '_documents';
     }
 
     /**
@@ -73,7 +84,7 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
     public function loadLatestRevisionData(CollectionInterface $collection, string $uuid) : array
     {
         // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid = :uuid AND latest = :latest AND language = :language', [
+        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name(), 'documents') . ' WHERE uuid = :uuid AND latest = :latest AND language = :language', [
             ':uuid' => $uuid,
             ':latest' => 1,
             ':language' => $collection->language(),
@@ -88,7 +99,7 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
     public function loadRevisionData(CollectionInterface $collection, string $uuid, string $revision) : array
     {
         // @todo There's probably a better/safer way to do this.
-        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid = :uuid AND revision = :revision', [
+        $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name(), 'documents') . ' WHERE uuid = :uuid AND revision = :revision', [
             ':uuid' => $uuid,
             ':revision' => $revision,
         ]);
@@ -111,7 +122,7 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
 
         if ($includeArchived) {
             // @todo There's probably a better/safer way to do this.
-            $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ?', [
+            $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name(), 'documents') . ' WHERE uuid IN (?) AND default_rev = ? AND language = ?', [
                 $uuids,
                 1,
                 $collection->language(),
@@ -119,7 +130,7 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
         }
         else {
             // @todo There's probably a better/safer way to do this.
-            $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name()) . ' WHERE uuid IN (?) AND default_rev = ? AND language = ? AND archived = ?', [
+            $statement = $this->conn->executeQuery('SELECT document FROM ' . $this->tableName($collection->name(), 'documents') . ' WHERE uuid IN (?) AND default_rev = ? AND language = ? AND archived = ?', [
                 $uuids,
                 1,
                 $collection->language(),
@@ -141,7 +152,7 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
     public function setDefaultRevision(CollectionInterface $collection, string $uuid, string $language, string $revision)
     {
         $this->conn->transactional(function (Connection $conn) use ($collection, $uuid, $language, $revision) {
-            $table = $this->tableName($collection->name());
+            $table = $this->tableName($collection->name(), 'documents');
 
             // If the Document we just saved was flagged as the default, set
             // all other revisions to not be the default (for the same document
@@ -170,7 +181,7 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
     {
         $this->conn->transactional(function (Connection $conn) use ($collection, $document, $setDefault) {
 
-            $table = $this->tableName($collection->name());
+            $table = $this->tableName($collection->name(), 'documents');
 
             $conn->insert($table, [
                 'uuid' => $document->uuid(),
@@ -213,7 +224,7 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
      */
     public function setArchived(CollectionInterface $collection, string $revision)
     {
-        $table = $this->tableName($collection->name());
+        $table = $this->tableName($collection->name(), 'documents');
         $this->conn->update($table, ['archived' => 1], ['revision' => $revision]);
     }
 

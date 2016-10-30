@@ -7,10 +7,15 @@ namespace Crell\Document\Driver\DoctrineMySQL;
 use Doctrine\DBAL\Schema\Table;
 
 /**
- * Table definition for a Collection.
+ * Table definition for Documents and Revisions.
  */
-class CollectionTable extends Table
+class DocumentsTable extends Table implements DocumentDefinitionTableInterface
 {
+
+    public static function name() : string
+    {
+        return 'documents';
+    }
 
     public function __construct($tableName)
     {
