@@ -32,11 +32,43 @@ class Collection implements CollectionInterface {
      */
     protected $driver;
 
+    /**
+     *
+     *
+     * @var string
+     */
+    protected $commit;
+
     public function __construct(string $name, CollectionDriverInterface $driver, $language = 'en')
     {
         $this->name = $name;
         $this->driver = $driver;
         $this->language = $language;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function commit() : string
+    {
+        return $this->commit;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function atCommit(string $commit) : CollectionInterface
+    {
+        $new = clone ($this);
+        $new->commit = $commit;
+        return $new;
+    }
+
+
+    public function atBranch(string $name) : CollectionInterface
+    {
+        $commit = '123'; // Determine what commit that branch is.
+        return $this->atCommit($commit);
     }
 
     /**

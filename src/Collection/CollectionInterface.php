@@ -177,4 +177,27 @@ interface CollectionInterface {
      *   The document to archive.
      */
     public function archive(DocumentInterface $document);
+
+    /**
+     * Returns the commit ID the collection points to.
+     *
+     * @return string
+     */
+    public function commit() : string;
+
+    /**
+     * Returns a new Collection instance pointing to the specified commit.
+     *
+     * @param string $commit
+     * @return static
+     */
+    public function atCommit(string $commit) : self;
+
+    /**
+     * Retuns a new Collection instance pointing to the specified branch.
+     *
+     * @param string $name
+     * @return static
+     */
+    public function atBranch(string $name) : CollectionInterface;
 }
