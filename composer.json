@@ -23,7 +23,9 @@
     "require": {
         "php": "^7.0",
         "doctrine/dbal": "^2.5",
-        "ramsey/uuid": "^3.4"
+        "ramsey/uuid": "^3.4",
+        "cpliakas/git-wrapper": "^1.7",
+        "teqneers/php-stream-wrapper-for-git": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "5.*",
