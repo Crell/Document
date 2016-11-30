@@ -23,6 +23,31 @@ class CollectionCommitTest extends \PHPUnit_Framework_TestCase
         return $collection;
     }
 
+    public function testSingleDocumentCommit()
+    {
+        $collection = $this->getCollection();
+
+        $doc1 = $collection->createDocument();
+        $uuid = $doc1->uuid();
+
+        $commit = $collection->createCommit()->withRevision($doc1);
+        $collection->saveCommit($commit);
+
+        $doc2 = $collection->newRevision($uuid);
+
+        $commit = $collection->createCommit('Commit message', 'Arthur the Author')->withRevision($doc1);
+        $collection->saveCommit($commit);
+
+        $doc3 = $collection->newRevision($uuid);
+
+        $this->assertEquals($doc1->uuid(), $doc2->uuid());
+        $this->assertEquals($doc1->uuid(), $doc3->uuid());
+        $this->assertNotEquals($doc1->revision(), $doc2->revision());
+        $this->assertNotEquals($doc1->revision(), $doc3->revision());
+        $this->assertNotEquals($doc2->revision(), $doc3->revision());
+    }
+
+    /*
     public function testThing()
     {
         $collection = $this->getCollection();
@@ -41,5 +66,6 @@ class CollectionCommitTest extends \PHPUnit_Framework_TestCase
 
         $collection->addCommit($commit);
     }
+    */
 
 }

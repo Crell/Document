@@ -74,6 +74,29 @@ class Collection implements CollectionInterface {
     /**
      * {@inheritdoc}
      */
+    public function createCommit(string $message = '', string $author = '') : Commit
+    {
+        return new Commit($message, $author);
+    }
+
+    public function saveCommit(Commit $commit) : CollectionInterface
+    {
+        // If there are no commits, there is nothing to do. Viz, no
+        // empty commits allowed.
+        if (!count($commit)) {
+            return $this;
+        }
+
+        foreach ($commit as $revision) {
+            $this->save($revision);
+        }
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function name() : string
     {
         return $this->name;

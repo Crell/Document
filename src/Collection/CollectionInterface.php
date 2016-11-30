@@ -200,4 +200,23 @@ interface CollectionInterface {
      * @return static
      */
     public function atBranch(string $name) : CollectionInterface;
+
+    /**
+     * Returns a new Commit command object.
+     *
+     * @param string $message
+     * @param string $author
+     * @return Commit
+     */
+    public function createCommit(string $message = '', string $author = '') : Commit;
+
+    /**
+     * Persists a commit object atomically.
+     *
+     * @param Commit $commit
+     *   The commit to persist.
+     * @return CollectionInterface
+     *   The called object.
+     */
+    public function saveCommit(Commit $commit) : self;
 }
