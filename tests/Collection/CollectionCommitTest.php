@@ -47,6 +47,43 @@ class CollectionCommitTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($doc2->revision(), $doc3->revision());
     }
 
+    public function testMultiDocumentCommit()
+    {
+        $collection = $this->getCollection();
+
+        $doc1 = $collection->createDocument();
+        $uuid1 = $doc1->uuid();
+
+        $doc2 = $collection->createDocument();
+        $uuid2 = $doc2->uuid();
+
+        $doc3 = $collection->createDocument();
+        $uuid3 = $doc3->uuid();
+
+        $commit = $collection->createCommit()
+            ->withRevision($doc1)
+            ->withRevision($doc2)
+            ->withRevision($doc3);
+
+        // Save all 3 at once.
+        $collection->saveCommit($commit);
+
+        $docs = $collection->loadMultiple([$uuid1, $uuid2]);
+
+        $this->assertCount(2, $docs);
+
+        $docs_array = iterator_to_array($docs);
+
+        $keys = array_keys($docs_array);
+        $this->assertContains($uuid1, $keys);
+        $this->assertContains($uuid2, $keys);
+        $this->assertNotContains($uuid3, $keys);
+
+        $this->assertEquals($uuid1, $docs_array[$uuid1]->uuid());
+        $this->assertEquals($uuid2, $docs_array[$uuid2]->uuid());
+
+    }
+
     /*
     public function testThing()
     {
