@@ -79,7 +79,17 @@ class Collection implements CollectionInterface {
         return new Commit($message, $author);
     }
 
-    public function saveCommit(Commit $commit) : CollectionInterface
+    /**
+     * Saves a commit object atomically.
+     *
+     * @param Commit $commit
+     *   The commit object to persist.
+     * @param bool $setDefault
+     *
+     * @return CollectionInterface
+     *   The called object.
+     */
+    public function saveCommit(Commit $commit, bool $setDefault = true) : CollectionInterface
     {
         // If there are no commits, there is nothing to do. Viz, no
         // empty commits allowed.
@@ -88,7 +98,7 @@ class Collection implements CollectionInterface {
         }
 
         foreach ($commit as $revision) {
-            $this->save($revision);
+            $this->driver->persist($this, $revision, $setDefault);
         }
 
         return $this;
@@ -283,7 +293,8 @@ class Collection implements CollectionInterface {
      */
     public function save(MutableDocumentInterface $document, bool $setDefault = true)
     {
-        $this->driver->persist($this, $document, $setDefault);
+        $commit = $this->createCommit()->withRevision($document);
+        $this->saveCommit($commit, $setDefault);
     }
 
     /**

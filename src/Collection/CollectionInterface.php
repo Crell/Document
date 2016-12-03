@@ -211,12 +211,17 @@ interface CollectionInterface {
     public function createCommit(string $message = '', string $author = '') : Commit;
 
     /**
-     * Persists a commit object atomically.
+     * Saves a commit object atomically.
      *
      * @param Commit $commit
-     *   The commit to persist.
+     *   The commit object to persist.
+     * @param bool $setDefault
+     *   True if all documents in the commit should be set as the default version,
+     *   false otherwise.
+     *
      * @return CollectionInterface
      *   The called object.
      */
-    public function saveCommit(Commit $commit) : self;
+    public function saveCommit(Commit $commit, bool $setDefault = true) : self;
+
 }
