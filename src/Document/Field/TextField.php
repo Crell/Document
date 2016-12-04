@@ -22,7 +22,7 @@ class TextField
      * TextField constructor.
      * @param string $value
      */
-    public function __construct(string $value)
+    public function __construct(string $value = '')
     {
         $this->value = $value;
     }
@@ -47,5 +47,28 @@ class TextField
     public function rot13() : string
     {
         return str_rot13($this->value);
+    }
+
+    /**
+     * Loads a new field using the provided data.
+     *
+     * @param array $data
+     *   An array of raw data to repopulate this object. Generally it is a direct
+     *   load from JSON data.
+     * @return static
+     *   A loaded document, which may be a subclass.
+     *
+     * @throws \InvalidArgumentException
+     *   Thrown if the data structure is missing a required key.
+     */
+    public static function hydrate(array $data) : self
+    {
+        $field = new static();
+
+        foreach ($data as $key => $value) {
+            $field->$key = $value;
+        }
+
+        return $field;
     }
 }

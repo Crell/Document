@@ -26,6 +26,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'parent_rev' => '',
             'timestamp' => new \DateTimeImmutable('2016-12-04'),
             'title' => 'A title',
+            'fields' => []
         ];
 
         $doc = Document::hydrate($data);
@@ -34,6 +35,37 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('rev', $doc->revision());
         $this->assertEquals('A title', $doc->title());
         $this->assertEquals(new \DateTimeImmutable('2016-12-04'), $doc->timestamp());
+    }
+
+
+    public function testHydrateWithFields()
+    {
+        $data = [
+            'class' => Document::class,
+            'uuid' => 'abc123',
+            'language' => 'en',
+            'revision' => 'rev',
+            'parent_rev' => '',
+            'timestamp' => new \DateTimeImmutable('2016-12-04'),
+            'title' => 'A title',
+            'fields' => [
+                'text' => [
+                    'class' => TextField::class,
+                    'items' => [
+                        ['value' => 'A textfield'],
+                    ],
+                ]
+            ],
+        ];
+
+        $doc = Document::hydrate($data);
+
+        $this->assertEquals('abc123', $doc->uuid());
+        $this->assertEquals('rev', $doc->revision());
+        $this->assertEquals('A title', $doc->title());
+        $this->assertEquals(new \DateTimeImmutable('2016-12-04'), $doc->timestamp());
+
+        $this->assertEquals('A textfield', $doc->text->value);
     }
 
 }

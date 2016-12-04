@@ -35,8 +35,28 @@ class Document {
         return $this->fields[$name];
     }
 
+    /**
+     * Loads a new document using the provided data.
+     *
+     * @param array $data
+     *   An array of raw data to repopulate this object. Generally it is a direct
+     *   load from JSON data.
+     * @return Document
+     *   A loaded document, which may be a subclass.
+     *
+     * @throws \InvalidArgumentException
+     *   Thrown if the data structure is missing a required key.
+     */
     public static function hydrate(array $data) : self
     {
+        $required = ['class', 'uuid', 'revision', 'language', 'title', 'parent_rev', 'timestamp', 'fields'];
+
+        foreach ($required as $name) {
+            if (!isset($data[$name])) {
+                throw new \InvalidArgumentException(sprintf('Incomplete data. Property \'%s\' is missing.', $name));
+            }
+        }
+
         $doc = new $data['class'];
 
         foreach (['uuid', 'revision', 'language', 'title'] as $key) {
@@ -48,6 +68,23 @@ class Document {
         $doc->parentRev = $data['parent_rev'];
 
         $doc->timestamp = $data['timestamp'];
+
+        foreach ($data['fields'] as $name => $definition) {
+            if (!isset($definition['class'])) {
+                throw new \InvalidArgumentException(sprintf('No class defined for field \'%s\'.', $name));
+            }
+
+            if (!isset($definition['items'])) {
+                throw new \InvalidArgumentException(sprintf('No items defined for field \'%s\'.', $name));
+            }
+
+            $items = [];
+            foreach ($definition['items'] as $item) {
+                $items[] = $definition['class']::hydrate($item);
+            }
+
+            $doc->fields[$name] = new FieldSet($items);
+        }
 
         return $doc;
     }
