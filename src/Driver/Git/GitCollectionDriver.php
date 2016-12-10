@@ -106,7 +106,17 @@ class GitCollectionDriver implements CollectionDriverInterface
      */
     public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
     {
-        // TODO: Implement persist() method.
+
+        $data = json_encode($document, true);
+
+        chdir($this->path);
+
+        $git = popen('git fast-import', 'w');
+
+        // @todo this is where the fast-import commands would go.  But we need to convert persist to be multi-value first. Sigh.
+
+
+        pclose($git);
     }
 
     /**
