@@ -177,4 +177,51 @@ interface CollectionInterface {
      *   The document to archive.
      */
     public function archive(DocumentInterface $document);
+
+    /**
+     * Returns the commit ID the collection points to.
+     *
+     * @return string
+     */
+    public function commit() : string;
+
+    /**
+     * Returns a new Collection instance pointing to the specified commit.
+     *
+     * @param string $commit
+     * @return static
+     */
+    public function atCommit(string $commit) : self;
+
+    /**
+     * Retuns a new Collection instance pointing to the specified branch.
+     *
+     * @param string $name
+     * @return static
+     */
+    public function atBranch(string $name) : CollectionInterface;
+
+    /**
+     * Returns a new Commit command object.
+     *
+     * @param string $message
+     * @param string $author
+     * @return Commit
+     */
+    public function createCommit(string $message = '', string $author = '') : Commit;
+
+    /**
+     * Saves a commit object atomically.
+     *
+     * @param Commit $commit
+     *   The commit object to persist.
+     * @param bool $setDefault
+     *   True if all documents in the commit should be set as the default version,
+     *   false otherwise.
+     *
+     * @return CollectionInterface
+     *   The called object.
+     */
+    public function saveCommit(Commit $commit, bool $setDefault = true) : self;
+
 }

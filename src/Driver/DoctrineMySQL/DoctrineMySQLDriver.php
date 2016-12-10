@@ -29,29 +29,17 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
     {
         $schemaManager = $this->conn->getSchemaManager();
 
-        $tables = [
-            DocumentsTable::class,
-        ];
-
         // These have to be done in a certain order and inter-relate, for FK purposes.
         $documentTable = new DocumentsTable($this->tableName($collection->name(), DocumentsTable::name()));
         $commitsTable = new CommitsTable($this->tableName($collection->name(), CommitsTable::name()));
-        $branchesTable = new BranchesTable($this->tableName($collection->name(), BranchesTable::name()), $commitsTable);
-        $commitParentsTable = new CommitParentsTable($this->tableName($collection->name(), CommitParentsTable::name()), $commitsTable);
-        $commitDocumentsTable = new CommitDocumentsTable($this->tableName($collection->name(), CommitDocumentsTable::name()), $documentTable, $commitsTable);
+//        $branchesTable = new BranchesTable($this->tableName($collection->name(), BranchesTable::name()), $commitsTable);
+//        $commitParentsTable = new CommitParentsTable($this->tableName($collection->name(), CommitParentsTable::name()), $commitsTable);
+//        $commitDocumentsTable = new CommitDocumentsTable($this->tableName($collection->name(), CommitDocumentsTable::name()), $documentTable, $commitsTable);
 
         /** @var Table $table */
-        foreach ([$documentTable, $commitsTable, $branchesTable, $commitParentsTable, $commitDocumentsTable] as $table) {
+        foreach ([$documentTable, $commitsTable, /* $branchesTable, $commitParentsTable, $commitDocumentsTable*/] as $table) {
             if (!$schemaManager->tablesExist($table->getName())) {
                 $schemaManager->createTable($table);
-            }
-        }
-
-        /** @var DocumentDefinitionTableInterface $table */
-        foreach ($tables as $table) {
-            $tableName = $this->tableName($collection->name(), $table::name());
-            if (!$schemaManager->tablesExist($tableName)) {
-                $schemaManager->createTable(new $table($tableName));
             }
         }
     }

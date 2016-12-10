@@ -32,11 +32,76 @@ class Collection implements CollectionInterface {
      */
     protected $driver;
 
+    /**
+     *
+     *
+     * @var string
+     */
+    protected $commit;
+
     public function __construct(string $name, CollectionDriverInterface $driver, $language = 'en')
     {
         $this->name = $name;
         $this->driver = $driver;
         $this->language = $language;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function commit() : string
+    {
+        return $this->commit;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function atCommit(string $commit) : CollectionInterface
+    {
+        $new = clone ($this);
+        $new->commit = $commit;
+        return $new;
+    }
+
+
+    public function atBranch(string $name) : CollectionInterface
+    {
+        $commit = '123'; // Determine what commit that branch is.
+        return $this->atCommit($commit);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createCommit(string $message = '', string $author = '') : Commit
+    {
+        return new Commit($message, $author);
+    }
+
+    /**
+     * Saves a commit object atomically.
+     *
+     * @param Commit $commit
+     *   The commit object to persist.
+     * @param bool $setDefault
+     *
+     * @return CollectionInterface
+     *   The called object.
+     */
+    public function saveCommit(Commit $commit, bool $setDefault = true) : CollectionInterface
+    {
+        // If there are no commits, there is nothing to do. Viz, no
+        // empty commits allowed.
+        if (!count($commit)) {
+            return $this;
+        }
+
+        foreach ($commit as $revision) {
+            $this->driver->persist($this, $revision, $setDefault);
+        }
+
+        return $this;
     }
 
     /**
@@ -228,7 +293,8 @@ class Collection implements CollectionInterface {
      */
     public function save(MutableDocumentInterface $document, bool $setDefault = true)
     {
-        $this->driver->persist($this, $document, $setDefault);
+        $commit = $this->createCommit()->withRevision($document);
+        $this->saveCommit($commit, $setDefault);
     }
 
     /**
