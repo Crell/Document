@@ -90,14 +90,14 @@ interface CollectionDriverInterface
      *
      * @param CollectionInterface $collection
      *   The collection for which to run this driver.
-     * @param MutableDocumentInterface $document
-     *   The document to persist.
+     * @param MutableDocumentInterface[] $documents
+     *   The documents to persist.
      * @param bool $setDefault
      *   True to set this revision as the default revision. False if not.
      *
      * @return mixed
      */
-    public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault);
+    public function persist(CollectionInterface $collection, array $documents, bool $setDefault);
 
     /**
      * Marks the specified revision of a document as archived.

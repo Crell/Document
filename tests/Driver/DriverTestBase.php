@@ -47,7 +47,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
         $doc = $this->getMutableMockDocument();
 
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
     }
 
     public function testPersistAndLoadByUuid()
@@ -56,7 +56,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
         $doc = $this->getMutableMockDocument();
 
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         $loaded = $driver->loadDefaultRevisionData($this->collection, '123');
         $this->assertEquals($doc->uuid(), $loaded['uuid']);
@@ -70,7 +70,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
         $doc = $this->getMutableMockDocument();
 
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         $loaded = $driver->loadRevisionData($this->collection, '123', '456');
         $this->assertEquals($doc->uuid(), $loaded['uuid']);
@@ -84,7 +84,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
         $doc = $this->getMutableMockDocument();
 
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         try {
             // There is clearly no such UUID.
@@ -104,7 +104,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
         $doc = $this->getMutableMockDocument();
 
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         // Only one of these UUIDs exist.
         $loaded = $driver->loadMultipleDefaultRevisionData($this->collection, ['123', 'abc']);
@@ -121,7 +121,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
 
         $doc = $this->getMutableMockDocument();
 
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         // None of these UUIDs exist.
         $records = $driver->loadMultipleDefaultRevisionData($this->collection, ['789', 'abc']);
@@ -135,12 +135,12 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $driver = $this->getDriver();
 
         $doc = $this->getMutableMockDocument('123');
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         $driver->setArchived($this->collection, $doc->revision());
 
         $doc2 = $this->getMutableMockDocument('abc', 'def');
-        $driver->persist($this->collection, $doc2, true);
+        $driver->persist($this->collection, [$doc2], true);
 
         try {
             // This UUID is Archived.
@@ -159,12 +159,12 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $driver = $this->getDriver();
 
         $doc = $this->getMutableMockDocument('123');
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         $driver->setArchived($this->collection, $doc->revision());
 
         $doc2 = $this->getMutableMockDocument('abc', 'def');
-        $driver->persist($this->collection, $doc2, true);
+        $driver->persist($this->collection, [$doc2], true);
 
         // Only the second should be found, as the first is archived.
         $records = $driver->loadMultipleDefaultRevisionData($this->collection, ['123', 'abc']);
@@ -178,7 +178,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $driver = $this->getDriver();
 
         $doc = $this->getMutableMockDocument('123');
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         $driver->setArchived($this->collection, $doc->revision());
 
@@ -192,12 +192,12 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
         $driver = $this->getDriver();
 
         $doc = $this->getMutableMockDocument('123');
-        $driver->persist($this->collection, $doc, true);
+        $driver->persist($this->collection, [$doc], true);
 
         $driver->setArchived($this->collection, $doc->revision());
 
         $doc2 = $this->getMutableMockDocument('abc', 'def');
-        $driver->persist($this->collection, $doc2, true);
+        $driver->persist($this->collection, [$doc2], true);
 
         // Only the second should be found, as the first is archived.
         $records = $driver->loadMultipleDefaultRevisionData($this->collection, ['123', 'abc'], true);

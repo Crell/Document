@@ -98,7 +98,7 @@ class Collection implements CollectionInterface {
         }
 
         foreach ($commit as $revision) {
-            $this->driver->persist($this, $revision, $setDefault);
+            $this->driver->persist($this, iterator_to_array($commit), $setDefault);
         }
 
         return $this;

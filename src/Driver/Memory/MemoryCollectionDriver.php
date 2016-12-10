@@ -118,7 +118,14 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
     /**
      * {@inheritdoc}
      */
-    public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
+    public function persist(CollectionInterface $collection, array $documents, bool $setDefault)
+    {
+        foreach ($documents as $document) {
+            $this->persistOne($collection, $document, $setDefault);
+        }
+    }
+
+    protected function persistOne(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
     {
         $this->storage->insert([
             'uuid' => $document->uuid(),

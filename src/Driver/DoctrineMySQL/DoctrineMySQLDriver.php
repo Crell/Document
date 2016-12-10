@@ -180,46 +180,66 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
+    public function persist(CollectionInterface $collection, array $documents, bool $setDefault)
     {
-        $this->conn->transactional(function (Connection $conn) use ($collection, $document, $setDefault) {
-
+        $this->conn->transactional(function (Connection $conn) use ($collection, $documents, $setDefault) {
             $table = $this->tableName($collection->name(), 'documents');
 
-            $conn->insert($table, [
-                'uuid' => $document->uuid(),
-                'revision' => $document->revision(),
-                'parent_rev' => $document->parent(),
-                'latest' => true,
-                'archived' => 0,
-                'default_rev' => (int)$setDefault,
-                'title' => $document->title(),
-                'language' => $document->language(),
-                'created' => $document->timestamp()->format('Y-m-d H:i:s'),
-                'document' => json_encode($document),
-            ]);
+            foreach ($documents as $document) {
+                $this->persistOne($document, $setDefault, $table);
+            }
 
-            // Set all revisions of this Document of the same language to not be
-            // the latest, except the one we just saved as the latest.
-            $conn->executeUpdate('UPDATE '.$table.' SET latest = :latest WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
-                ':latest' => 0,
+        });
+    }
+
+    /**
+     * Persists a single document.
+     *
+     * This method should normally onl be called from persist(), within a transaction.
+     *
+     * @param MutableDocumentInterface $document
+     * @param bool $setDefault
+     * @param string $table
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    protected function persistOne(MutableDocumentInterface $document, bool $setDefault, string $table)
+    {
+        $conn = $this->conn;
+
+        $conn->insert($table, [
+            'uuid' => $document->uuid(),
+            'revision' => $document->revision(),
+            'parent_rev' => $document->parent(),
+            'latest' => true,
+            'archived' => 0,
+            'default_rev' => (int)$setDefault,
+            'title' => $document->title(),
+            'language' => $document->language(),
+            'created' => $document->timestamp()->format('Y-m-d H:i:s'),
+            'document' => json_encode($document),
+        ]);
+
+        // Set all revisions of this Document of the same language to not be
+        // the latest, except the one we just saved as the latest.
+        $conn->executeUpdate('UPDATE '.$table.' SET latest = :latest WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
+            ':latest' => 0,
+            ':uuid' => $document->uuid(),
+            ':language' => $document->language(),
+            ':revision' => $document->revision(),
+        ]);
+
+        if ($setDefault) {
+            // If the Document we just saved was flagged as the default, set
+            // all other revisions to not be the default (for the same document
+            // and language).
+            $conn->executeUpdate('UPDATE '.$table.' SET default_rev = :default WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
+                ':default' => 0,
                 ':uuid' => $document->uuid(),
                 ':language' => $document->language(),
                 ':revision' => $document->revision(),
             ]);
+        }
 
-            if ($setDefault) {
-                // If the Document we just saved was flagged as the default, set
-                // all other revisions to not be the default (for the same document
-                // and language).
-                $conn->executeUpdate('UPDATE '.$table.' SET default_rev = :default WHERE uuid = :uuid AND language = :language AND NOT revision = :revision ', [
-                    ':default' => 0,
-                    ':uuid' => $document->uuid(),
-                    ':language' => $document->language(),
-                    ':revision' => $document->revision(),
-                ]);
-            }
-        });
     }
 
     /**
