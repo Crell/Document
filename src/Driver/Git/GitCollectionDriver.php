@@ -59,6 +59,9 @@ class GitCollectionDriver implements CollectionDriverInterface
         chdir($this->path);
 
         exec('git init --bare');
+
+        // @todo Add an initial commit here, and return it somehow, so that the collection
+        // Can know what commit it's at. Erf.
     }
 
     /**
@@ -104,19 +107,48 @@ class GitCollectionDriver implements CollectionDriverInterface
     /**
      * {@inheritdoc}
      */
-    public function persist(CollectionInterface $collection, MutableDocumentInterface $document, bool $setDefault)
+    public function persist(CollectionInterface $collection, array $documents, bool $setDefault)
     {
-
-        $data = json_encode($document, true);
+        $branch = $collection->branch();
+        $parent = $collection->commit();
 
         chdir($this->path);
 
-        $git = popen('git fast-import', 'w');
+        try {
+            // Open a new process to the git fast-import tool.
+            $git = popen('git fast-import --date-format=raw', 'w');
 
-        // @todo this is where the fast-import commands would go.  But we need to convert persist to be multi-value first. Sigh.
+            $timestamp = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('U');
 
+            $commit_message = 'Commit message here';
+            $commit_message_bytes = strlen($commit_message);
 
-        pclose($git);
+            // Add the header material that tells it what commit we're creating.
+            fwrite($git, "commit refs/heads/{$branch}\n");
+            fwrite($git, "committer Test User <test> {$timestamp} +0000\n");
+            fwrite($git, "data {$commit_message_bytes}\n");
+            fwrite($git, "{$commit_message}\n");
+
+            fwrite($git, "from {$parent}\n");
+
+            /** @var MutableDocumentInterface $document */
+            foreach ($documents as $document) {
+                $data = json_encode($document, true);
+
+                // Even if there are UTF-8 characters in $data, we want its bytesize, not
+                // character count. That makes strlen() correct in this case.
+                $bytes = strlen($data);
+
+                $filename = $document->uuid();
+                fwrite($git, "'M' 100644 'inline' {$filename}\n");
+                fwrite($git, "data {$bytes}\n");
+                fwrite($git, "$data\n");
+            }
+        }
+        finally {
+            // Always clean up after yourself.
+            pclose($git);
+        }
     }
 
     /**

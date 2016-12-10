@@ -39,11 +39,19 @@ class Collection implements CollectionInterface {
      */
     protected $commit;
 
+    /**
+     *
+     *
+     * @var string
+     */
+    protected $branch;
+
     public function __construct(string $name, CollectionDriverInterface $driver, $language = 'en')
     {
         $this->name = $name;
         $this->driver = $driver;
         $this->language = $language;
+        $this->branch = 'master';
     }
 
     /**
@@ -52,6 +60,14 @@ class Collection implements CollectionInterface {
     public function commit() : string
     {
         return $this->commit;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function branch() : string
+    {
+        return $this->branch;
     }
 
     /**

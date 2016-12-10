@@ -186,6 +186,13 @@ interface CollectionInterface {
     public function commit() : string;
 
     /**
+     * Returns the branch name the collection points to.
+     *
+     * @return string
+     */
+    public function branch() : string;
+
+    /**
      * Returns a new Collection instance pointing to the specified commit.
      *
      * @param string $commit

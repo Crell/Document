@@ -29,6 +29,8 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
             public function __construct() {
                 $this->language = 'en';
                 $this->name = 'coll';
+                $this->branch = 'master';
+                $this->commit = 'abc123';
             }
         };
     }
