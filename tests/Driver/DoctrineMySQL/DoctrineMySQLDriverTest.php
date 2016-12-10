@@ -2,10 +2,11 @@
 
 declare (strict_types = 1);
 
-namespace Crell\Document\Test\Collection;
+namespace Crell\Document\Test\Driver\DoctrineMySQL;
 
 use Crell\Document\Driver\CollectionDriverInterface;
 use Crell\Document\Driver\DoctrineMySQL\DoctrineMySQLDriver;
+use Crell\Document\Test\Driver\DriverTestBase;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 
