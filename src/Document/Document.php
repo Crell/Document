@@ -7,7 +7,7 @@ namespace Crell\Document\Document;
 /**
  * A document is the basic unit of data.
  */
-class Document {
+class Document implements \JsonSerializable {
     use DocumentTrait;
 
     protected $fields = [];
@@ -67,7 +67,7 @@ class Document {
         // @todo Do something about this.
         $doc->parentRev = $data['parent_rev'];
 
-        $doc->timestamp = $data['timestamp'];
+        $doc->timestamp = new \DateTimeImmutable($data['timestamp'], new \DateTimeZone('UTC'));
 
         foreach ($data['fields'] as $name => $definition) {
             if (!isset($definition['class'])) {

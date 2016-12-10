@@ -116,7 +116,8 @@ trait DocumentTrait
      * {@inheritdoc}
      */
     public function jsonSerialize() {
-        return [
+        $data = [
+            'class' => get_called_class(),
             'uuid' => $this->uuid,
             'revision' => $this->revision,
             'parent_rev' => $this->parentRev,
@@ -124,5 +125,19 @@ trait DocumentTrait
             'timestamp' => $this->timestamp()->format('c'),
             'title' => $this->title,
         ];
+
+        /**
+         * @var string $name
+         * @var FieldSet $set
+         */
+        foreach ($this->fields as $name => $set) {
+            $class = get_class($set[0]);
+            $data['fields'][$name]['class'] = $class;
+            foreach ($set as $index => $field) {
+                $data['fields'][$name]['items'][] = $field->jsonSerialize();
+            }
+        }
+
+        return $data;
     }
 }

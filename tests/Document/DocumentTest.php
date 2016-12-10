@@ -24,7 +24,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'language' => 'en',
             'revision' => 'rev',
             'parent_rev' => '',
-            'timestamp' => new \DateTimeImmutable('2016-12-04'),
+            'timestamp' => (new \DateTimeImmutable('2016-12-04'))->format('c'),
             'title' => 'A title',
             'fields' => []
         ];
@@ -37,7 +37,6 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new \DateTimeImmutable('2016-12-04'), $doc->timestamp());
     }
 
-
     public function testHydrateWithFields()
     {
         $data = [
@@ -46,7 +45,7 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
             'language' => 'en',
             'revision' => 'rev',
             'parent_rev' => '',
-            'timestamp' => new \DateTimeImmutable('2016-12-04'),
+            'timestamp' => (new \DateTimeImmutable('2016-12-04'))->format('c'),
             'title' => 'A title',
             'fields' => [
                 'text' => [
@@ -66,6 +65,35 @@ class DocumentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new \DateTimeImmutable('2016-12-04'), $doc->timestamp());
 
         $this->assertEquals('A textfield', $doc->text->value);
+    }
+
+    public function testSerialize()
+    {
+        $data = [
+            'class' => Document::class,
+            'uuid' => 'abc123',
+            'language' => 'en',
+            'revision' => 'rev',
+            'parent_rev' => '',
+            'timestamp' => (new \DateTimeImmutable('2016-12-04'))->format('c'),
+            'title' => 'A title',
+            'fields' => [
+                'text' => [
+                    'class' => TextField::class,
+                    'items' => [
+                        ['value' => 'A textfield'],
+                    ],
+                ]
+            ],
+        ];
+
+        $doc = Document::hydrate($data);
+
+        $json = json_encode($doc);
+
+        $deserialized = json_decode($json, TRUE);
+
+        $this->assertEquals($data, $deserialized);
     }
 
 }

@@ -9,7 +9,7 @@ namespace Crell\Document\Document\Field;
  *
  * @todo This probably could get fancier, but it's mainly for testing for now.
  */
-class TextField
+class TextField implements \JsonSerializable
 {
     /**
      * The stored value in this TextField.
@@ -71,4 +71,13 @@ class TextField
 
         return $field;
     }
+
+    public function jsonSerialize()
+    {
+        return [
+            'value' => $this->value,
+        ];
+    }
+
+
 }
