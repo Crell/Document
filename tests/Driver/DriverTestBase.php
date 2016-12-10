@@ -34,7 +34,7 @@ abstract class DriverTestBase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Returns a collectoin driver object to test.
+     * Returns a collection driver object to test.
      *
      * @return CollectionDriverInterface
      */
