@@ -133,14 +133,14 @@ class GitCollectionDriver implements CollectionDriverInterface
 
             /** @var MutableDocumentInterface $document */
             foreach ($documents as $document) {
-                $data = json_encode($document, true);
+                $data = json_encode($document);
 
                 // Even if there are UTF-8 characters in $data, we want its bytesize, not
                 // character count. That makes strlen() correct in this case.
                 $bytes = strlen($data);
 
                 $filename = $document->uuid();
-                fwrite($git, "'M' 100644 'inline' {$filename}\n");
+                fwrite($git, "M 100644 inline {$filename}\n");
                 fwrite($git, "data {$bytes}\n");
                 fwrite($git, "$data\n");
             }
