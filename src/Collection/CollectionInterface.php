@@ -189,7 +189,7 @@ interface CollectionInterface {
      * Returns a new Collection instance pointing to the specified commit.
      *
      * @param string $commit
-     * @return static
+     * @return self
      */
     public function atCommit(string $commit) : self;
 
@@ -197,9 +197,28 @@ interface CollectionInterface {
      * Retuns a new Collection instance pointing to the specified branch.
      *
      * @param string $name
-     * @return static
+     * @return self
+     *   A new collection instance bound to the specified branch.
      */
     public function atBranch(string $name) : CollectionInterface;
+
+    /**
+     * Creates a new branch of this collection.
+     *
+     * @param string $name
+     *   The name of the branch to create.
+     * @return self
+     *   A new collection instance bound to the newly created branch.
+     */
+    public function makeBranch(string $name): CollectionInterface;
+
+    /**
+     * Returns the branch this collection is currently on.
+     *
+     * @return string
+     *   The branch this collection is currently on.
+     */
+    public function branch(): string;
 
     /**
      * Returns a new Commit command object.

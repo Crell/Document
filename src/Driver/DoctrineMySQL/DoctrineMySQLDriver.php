@@ -38,7 +38,7 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
 
         /** @var Table $table */
         foreach ([$documentTable, $commitsTable, /* $branchesTable, $commitParentsTable, $commitDocumentsTable*/] as $table) {
-            if (!$schemaManager->tablesExist($table->getName())) {
+            if (!$schemaManager->tablesExist([$table->getName()])) {
                 $schemaManager->createTable($table);
             }
         }

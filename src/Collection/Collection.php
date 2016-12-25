@@ -33,6 +33,13 @@ class Collection implements CollectionInterface {
     protected $driver;
 
     /**
+     * The branch this collection currently points to.
+     *
+     * @var string
+     */
+    protected $branch;
+
+    /**
      *
      *
      * @var string
@@ -44,6 +51,7 @@ class Collection implements CollectionInterface {
         $this->name = $name;
         $this->driver = $driver;
         $this->language = $language;
+        $this->branch = 'master';
     }
 
     /**
@@ -67,8 +75,20 @@ class Collection implements CollectionInterface {
 
     public function atBranch(string $name) : CollectionInterface
     {
-        $commit = '123'; // Determine what commit that branch is.
-        return $this->atCommit($commit);
+        $new = clone($this);
+        $new->branch = $name;
+        returN $new;
+    }
+
+    public function makeBranch(string $name) : CollectionInterface
+    {
+        $this->driver->makeBranch($name);
+        return $this->atBranch($name);
+    }
+
+    public function branch() : string
+    {
+        return $this->branch;
     }
 
     /**

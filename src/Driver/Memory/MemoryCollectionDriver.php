@@ -18,9 +18,12 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     protected $storage;
 
+    protected $branches = [];
+
     public function __construct()
     {
         $this->storage = new MemoryTable();
+        $this->makeBranch('master');
     }
 
     /**
@@ -37,8 +40,12 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
     public function loadLatestRevisionData(CollectionInterface $collection, string $uuid) : array
     {
         $result = $this->storage->find(function(array $item) use ($collection, $uuid) {
-            return $item['uuid'] == $uuid && $item['latest'] == true && $item['language'] == $collection->language();
+            return $item['uuid'] == $uuid
+                && $item['latest'] == true
+                && $item['language'] == $collection->language()
+                && $item['branch'] == $collection->branch();
         });
+        // @todo What's the error handling here if no document revision is found?
         return current(iterator_to_array($result));
     }
 
@@ -51,6 +58,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
             return $item['uuid'] == $uuid
                 && $item['default_rev'] == true
                 && $item['language'] == $collection->language()
+                && $item['branch'] == $collection->branch()
                 // If archived is allowed, turn this line into a noop.
                 && $item['archived'] == ($includeArchived ? $item['archived'] : 0);
         });
@@ -72,8 +80,10 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
      */
     public function loadRevisionData(CollectionInterface $collection, string $uuid, string $revision) : array
     {
-        $result = $this->storage->find(function(array $item) use ($uuid, $revision) {
-            return $item['uuid'] == $uuid && $item['revision'] == $revision;
+        $result = $this->storage->find(function(array $item) use ($uuid, $revision, $collection) {
+            return $item['uuid'] == $uuid
+                && $item['revision'] == $revision
+                && $item['branch'] == $collection->branch();
         });
         return current(iterator_to_array($result));
     }
@@ -138,12 +148,14 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
             'archived' => false,
             'timestamp' => new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
             'default_rev' => (int)$setDefault,
+            'branch' => $collection->branch(),
         ]);
 
-        $is_related_doc = function($item) use ($document) {
+        $is_related_doc = function($item) use ($document, $collection) {
             return $item['uuid'] == $document->uuid()
                 && $item['language'] == $document->language()
-                && $item['revision'] != $document->revision();
+                && $item['revision'] != $document->revision()
+                && $item['branch'] == $collection->branch();
         };
 
         // Set all revisions of this Document of the same language to not be
@@ -171,5 +183,9 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         }, function(&$item) {
             $item['archived'] = true;
         });
+    }
+
+    public function makeBranch(string $branch) {
+        $this->branches[] = $branch;
     }
 }

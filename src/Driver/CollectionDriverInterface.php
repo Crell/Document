@@ -112,4 +112,7 @@ interface CollectionDriverInterface
      *   The document to archive.
      */
     public function setArchived(CollectionInterface $collection, string $revision);
+
+
+    public function makeBranch(string $branch);
 }
