@@ -15,7 +15,7 @@ class MemoryTable
      *
      * @var array
      */
-    protected $storage;
+    protected $storage = [];
 
     /**
      * Adds a record to the storage.

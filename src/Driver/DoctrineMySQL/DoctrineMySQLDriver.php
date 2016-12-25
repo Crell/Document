@@ -10,6 +10,7 @@ use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Driver\CollectionDriverInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 
 class DoctrineMySQLDriver implements CollectionDriverInterface
 {
@@ -20,6 +21,12 @@ class DoctrineMySQLDriver implements CollectionDriverInterface
 
     public function __construct(Connection $conn) {
         $this->conn = $conn;
+    }
+
+    public function makeBranch(CollectionInterface $collection, string $branch)
+    {
+        $schemaManager = $this->conn->getSchemaManager();
+        $schemaManager->listTableColumns($this->tableName($collection->name()))
     }
 
     /**

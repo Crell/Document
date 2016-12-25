@@ -113,6 +113,14 @@ interface CollectionDriverInterface
      */
     public function setArchived(CollectionInterface $collection, string $revision);
 
-
-    public function makeBranch(string $branch);
+    /**
+     * Creates a new branch, from a specified existing branch.
+     *
+     * @param CollectionInterface $collection
+     *   The collection for which to run this driver.
+     * @param string $branch
+     *   The branch to create.
+     * @return void
+     */
+    public function makeBranch(CollectionInterface $collection, string $branch, string $parent = 'master');
 }

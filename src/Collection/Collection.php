@@ -82,7 +82,7 @@ class Collection implements CollectionInterface {
 
     public function makeBranch(string $name) : CollectionInterface
     {
-        $this->driver->makeBranch($name);
+        $this->driver->makeBranch($this, $name, $this->branch());
         return $this->atBranch($name);
     }
 
