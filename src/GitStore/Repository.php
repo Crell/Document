@@ -102,7 +102,8 @@ class Repository
                 fwrite($git, "{$message}\n");
 
                 if ($parent !== '') {
-                    fwrite($git, "from {$parent}\n");
+                    $parentHash = $this->getCommitForBranch($parent);
+                    fwrite($git, "from {$parentHash}\n");
                 }
 
                 foreach ($documents as $filename => $document) {
@@ -205,6 +206,8 @@ class Repository
 
     public function getCommitForBranch(string $branch) : string
     {
+        // @todo Switch this to running git rev-parse $branch
+
         // The output from file_get_contents() will have a trailing newline, which we don't want.
         return trim(file_get_contents($this->path .'/refs/heads/' . $branch));
     }
@@ -221,9 +224,20 @@ class Repository
      */
     public function createBranch(string $start, string $name)
     {
-        chdir($this->path);
+        // I feel like not wrapping the args in escapeshellargs() is a security hole, but if I do they
+        // get wrapped in single quotes which breaks this command. I am not sure how to fix that.
+        $command = sprintf('git update-ref refs/heads/%s %s', $name, $this->getCommitForBranch($start));
 
-        // @todo Error handling?  What can go wrong?  (LOL!)
-        exec(sprintf('git update-ref refs/head/%s %s'), escapeshellarg($name), escapeshellarg($this->getCommitForBranch($start)));
+        $process = new SimpleProcess($command, $this->path);
+
+        $process->run();
+
+        $error = $process->readError();
+
+        if ($errorCode = $process->close()) {
+            throw new \RuntimeException(sprintf('Error creating branch: %s', $error));
+        }
+
+
     }
 }
