@@ -161,14 +161,18 @@ class SimpleProcess
      *
      * @param string $value
      *   A string to write to the process.
+     * @return self
+     *   The invoked object.
      */
-    public function write(string $value)
+    public function write(string $value) : self
     {
         if ($this->finished) {
             throw new \RuntimeException('A Process object may not be reused.');
         }
 
         fwrite($this->pipes[static::PROCESS_STDIN], $value);
+
+        return $this;
     }
 
     /**
