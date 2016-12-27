@@ -206,10 +206,20 @@ class Repository
 
     public function getCommitForBranch(string $branch) : string
     {
-        // @todo Switch this to running git rev-parse $branch
+        $command = sprintf('git rev-parse %s', $branch);
 
-        // The output from file_get_contents() will have a trailing newline, which we don't want.
-        return trim(file_get_contents($this->path .'/refs/heads/' . $branch));
+        $process = new SimpleProcess($command, $this->path);
+        $process->run();
+
+        $out = trim($process->read());
+
+        $error = $process->readError();
+
+        if ($errorCode = $process->close()) {
+            throw new \RuntimeException(sprintf('Error creating branch: %s', $error));
+        }
+
+        return $out;
     }
 
     /**
