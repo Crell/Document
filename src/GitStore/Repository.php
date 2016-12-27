@@ -32,17 +32,44 @@ class Repository
      */
     protected $debug;
 
+    /**
+     * Constructs a new Repository.
+     *
+     * @param string $path
+     *   The absolute path of the bare repository on disk.
+     * @param bool $debug
+     *   True to use extra-verbose output, False to supress stdout/stderr output.
+     */
     public function __construct(string $path, bool $debug = false)
     {
         $this->path = $path;
         $this->debug = $debug;
     }
 
+    /**
+     * Returns a branch pointer object for a specified branch.
+     *
+     * In 99% of cases, user code should only interact with a repository through a
+     * branch pointer. It is extraordinarily rare that it should access the repository
+     * directly.
+     *
+     * @param string $name
+     *   The name of the branch for which to get a pointer.
+     * @return Branch
+     *   A new branch pointer for the specified branch.
+     */
     public function getBranchPointer(string $name = 'master') : Branch
     {
         return new Branch($this, $name);
     }
 
+    /**
+     * Initialize a new repository.
+     *
+     * This includes creating the initial commit so that there is alwaysa  parent.
+     *
+     * @throws \Exception
+     */
     public function init()
     {
         // Make the directory for the git repository to live in.
@@ -109,11 +136,22 @@ class Repository
         });
     }
 
+    /**
+     * Loads a single saved document by name.
+     *
+     * @param $name
+     *   The name of the document to retrieve. This may be a path, but should NOT include a leading /.
+     * @param string $commit
+     *   The commit-ish from which to load the document.
+     * @return array
+     *   The deserialized stored value for the specified object name at a given commit.
+     *
+     * @throws \InvalidArgumentException
+     *   Thrown if the requested document does not exist in that commit.
+     */
     public function load($name, string $commit) : array
     {
-        $results = $this->loadMultiple([$name], $commit);
-
-        $current = $results->current();
+        $current = $this->loadMultiple([$name], $commit)->current();
 
         if (!$current) {
             throw new \InvalidArgumentException(sprintf('No Document "%s" found for commit "%s"', $name, $commit));
@@ -122,6 +160,17 @@ class Repository
         return $current;
     }
 
+    /**
+     * Loads multiple saved documents by name.
+     *
+     * @param array $names
+     *   An array of the document names to retrieve. Names may be paths, but should NOT include a leading /.
+     * @param string $commit
+     *   The commit-ish from which to load the document.
+     * @return \Iterator
+     *   An iterator of the results that were found. Missing documents will be omitted. Keys are the filename,
+     *   values decoded to an array.
+     */
     public function loadMultiple(array $names, string $commit) : \Iterator
     {
         foreach ($names as $name) {
@@ -165,6 +214,14 @@ class Repository
         }
     }
 
+    /**
+     * Determines the commit ID of a branch.
+     *
+     * @param string $branch
+     *   The branch to look up. If a commit ID is provided it will simply be returned.
+     * @return string
+     *   The commit ID of the specified branch.
+     */
     public function getCommitForBranch(string $branch) : string
     {
         $command = sprintf('git rev-parse %s', $branch);
