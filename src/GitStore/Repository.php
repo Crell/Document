@@ -87,8 +87,8 @@ class Repository
     /**
      * Writes a new commit.
      *
-     * @param array $documents
-     *   An array of documents to store.  They may be any JSON-ifiable value.
+     * @param iterable $documents
+     *   An iterable of documents to store.  They may be any JSON-ifiable value.
      * @param string $committer
      *   The committer for this commit. Must contain < and >, even if they don't wrap an email address.
      * @param string $message
@@ -98,7 +98,7 @@ class Repository
      * @param string $parent
      *   The commit ID of the parent commit. Pass an empty string literal to create a no-parent commit.
      */
-    public function commit(array $documents, string $committer, string $message, string $branch, string $parent)
+    public function commit($documents, string $committer, string $message, string $branch, string $parent)
     {
         $this->synchronize('commit', function () use ($documents, $committer, $message, $branch, $parent) {
             // Open a new process to the git fast-import tool.

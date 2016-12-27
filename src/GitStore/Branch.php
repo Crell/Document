@@ -67,14 +67,14 @@ class Branch
     /**
      * Writes a new commit on this branch.
      *
-     * @param array $documents
-     *   An array of documents to store.  They may be any JSON-ifiable value.
+     * @param iterable $documents
+     *   An iterable of documents to store.  They may be any JSON-ifiable value.
      * @param string $committer
      *   The committer for this commit. Must contain < and >, even if they don't wrap an email address.
      * @param string $message
      *   The commit message.
      */
-    public function commit(array $documents, string $committer, string $message)
+    public function commit($documents, string $committer, string $message)
     {
         $this->repository->commit($documents, $committer, $message, $this->branch, $this->branch);
     }
