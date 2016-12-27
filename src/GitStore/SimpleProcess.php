@@ -46,6 +46,27 @@ class SimpleProcess
     protected $finished = false;
 
     /**
+     * The output of the process, if it was executed with run().
+     *
+     * @var string
+     */
+    protected $output;
+
+    /**
+     * The stderr of the process, if it was executed with run().
+     *
+     * @var string
+     */
+    protected $error;
+
+    /**
+     * The exit code of the process, if it was executed with run().
+     *
+     * @var int
+     */
+    protected $exitcode;
+
+    /**
      * Constructs a new SimpleProcess.
      *
      * @param string $command
@@ -60,14 +81,14 @@ class SimpleProcess
     }
 
     /**
-     * Execute the command.
+     * Executes the command.
      *
      * @todo Should this happen on the constructor?
      *
      * @return self
      *   The invoked object.
      */
-    public function run() : self
+    public function start() : self
     {
         if ($this->finished) {
             throw new \RuntimeException('A Process object may not be reused.');
@@ -82,6 +103,53 @@ class SimpleProcess
         $this->process = proc_open($this->command, $descriptorspec, $this->pipes, $this->cwd);
 
         return $this;
+    }
+
+    /**
+     * Executes the command and terminates.
+     *
+     * The object will then contain the output and error information, accessible via separate methods.
+     */
+    public function run() : self
+    {
+        $this->start();
+
+        $this->output = trim($this->read());
+        $this->error = trim($this->readError());
+
+        $this->exitcode = $this->close();
+
+        return $this;
+    }
+
+    /**
+     * Returns the stdout output of the process, if it was executed with run().
+     *
+     * @return string
+     */
+    public function output() : string
+    {
+        return $this->output;
+    }
+
+    /**
+     * Returns the stderr output of the process, if it was executed with run().
+     *
+     * @return string
+     */
+    public function error() : string
+    {
+        return $this->error;
+    }
+
+    /**
+     * Returns the exit code of the process, if it was executed with run().
+     *
+     * @return int
+     */
+    public function exitcode() : int
+    {
+        return $this->exitcode;
     }
 
     /**

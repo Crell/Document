@@ -208,18 +208,12 @@ class Repository
     {
         $command = sprintf('git rev-parse %s', $branch);
 
-        $process = new SimpleProcess($command, $this->path);
-        $process->run();
-
-        $out = trim($process->read());
-
-        $error = $process->readError();
-
-        if ($errorCode = $process->close()) {
-            throw new \RuntimeException(sprintf('Error creating branch: %s', $error));
+        $process = (new SimpleProcess($command, $this->path))->run();
+        if ($process->exitcode()) {
+            throw new \RuntimeException(sprintf('Error creating branch: %s', $process->error()));
         }
 
-        return $out;
+        return $process->output();
     }
 
     /**
@@ -238,16 +232,10 @@ class Repository
         // get wrapped in single quotes which breaks this command. I am not sure how to fix that.
         $command = sprintf('git update-ref refs/heads/%s %s', $name, $this->getCommitForBranch($start));
 
-        $process = new SimpleProcess($command, $this->path);
+        $process = (new SimpleProcess($command, $this->path))->run();
 
-        $process->run();
-
-        $error = $process->readError();
-
-        if ($errorCode = $process->close()) {
-            throw new \RuntimeException(sprintf('Error creating branch: %s', $error));
+        if ($process->exitcode()) {
+            throw new \RuntimeException(sprintf('Error creating branch: %s', $process->error()));
         }
-
-
     }
 }
