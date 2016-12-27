@@ -72,50 +72,43 @@ class Repository
     public function commit(array $documents, string $committer, string $message, string $parent)
     {
         $this->synchronize('commit', function () use ($documents, $committer, $message, $parent) {
-            // Make an initial empty commit.  I think.
-            try {
-                // Open a new process to the git fast-import tool.
-                $command = 'git fast-import --date-format=raw';
-                $command .= $this->debug ? ' --stats' : ' --quiet';
+            // Open a new process to the git fast-import tool.
+            $command = 'git fast-import --date-format=raw';
+            $command .= $this->debug ? ' --stats' : ' --quiet';
 
-                $process = (new SimpleProcess($command, $this->path))->start();
+            $process = (new SimpleProcess($command, $this->path))->start();
 
-                $timestamp = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('U');
+            $timestamp = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('U');
 
-                $message_bytes = strlen($message);
+            $message_bytes = strlen($message);
 
-                // Add the header material that tells it what commit we're creating.
-                // @todo This is a temporary workaround. This way, we can still initialize a repository
-                // but can't have multiple roots. That's probably fine in the long-run, though.
-                if ($parent) {
-                    $process->write("commit refs/heads/{$parent}\n");
-                } else {
-                    $process->write("commit refs/heads/master\n");
-                }
-                $process->write("committer {$committer} {$timestamp} +0000\n")
-                        ->write("data {$message_bytes}\n")
-                        ->write("{$message}\n");
-
-                if ($parent !== '') {
-                    $parentHash = $this->getCommitForBranch($parent);
-                    $process->write("from {$parentHash}\n");
-                }
-
-                foreach ($documents as $filename => $document) {
-                    $data = json_encode($document, JSON_PRETTY_PRINT);
-
-                    // Even if there are UTF-8 characters in $data, we want its bytesize, not
-                    // character count. That makes strlen() correct in this case.
-                    $bytes = strlen($data);
-
-                    $process->write("M 644 inline {$filename}\n")
-                            ->write("data {$bytes}\n")
-                            ->write("$data\n");
-                }
+            // Add the header material that tells it what commit we're creating.
+            // @todo This is a temporary workaround. This way, we can still initialize a repository
+            // but can't have multiple roots. That's probably fine in the long-run, though.
+            if ($parent) {
+                $process->write("commit refs/heads/{$parent}\n");
+            } else {
+                $process->write("commit refs/heads/master\n");
             }
-            finally {
-                // Always close the stream so we don't leave dangling resources.
-                $process->close();
+            $process->write("committer {$committer} {$timestamp} +0000\n")
+                ->write("data {$message_bytes}\n")
+                ->write("{$message}\n");
+
+            if ($parent !== '') {
+                $parentHash = $this->getCommitForBranch($parent);
+                $process->write("from {$parentHash}\n");
+            }
+
+            foreach ($documents as $filename => $document) {
+                $data = json_encode($document, JSON_PRETTY_PRINT);
+
+                // Even if there are UTF-8 characters in $data, we want its bytesize, not
+                // character count. That makes strlen() correct in this case.
+                $bytes = strlen($data);
+
+                $process->write("M 644 inline {$filename}\n")
+                    ->write("data {$bytes}\n")
+                    ->write("$data\n");
             }
         });
     }
