@@ -41,7 +41,7 @@ class Branch
 
     public function commit(array $documents, string $committer, string $message)
     {
-        $this->repository->commit($documents, $committer, $message, $this->branch);
+        $this->repository->commit($documents, $committer, $message, $this->branch, $this->branch);
     }
 
     public function load($name): array

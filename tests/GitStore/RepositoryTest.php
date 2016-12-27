@@ -22,7 +22,7 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $doc1 = ['hello' => 'world'];
         $doc2 = ['goodbye' => 'world'];
 
-        $repo->commit(['doc1' => $doc1, 'doc2' => $doc2], 'Me <me>', 'Test commit', 'master');
+        $repo->commit(['doc1' => $doc1, 'doc2' => $doc2], 'Me <me>', 'Test commit', 'master', 'master');
 
         $this->assertEquals($doc1, $repo->load('doc1', 'master'));
     }
@@ -33,12 +33,10 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $doc1 = ['hello' => 'world'];
         $doc2 = ['goodbye' => 'world'];
 
-        $repo->commit(['doc1' => $doc1, 'doc2' => $doc2], 'Me <me>', 'Test commit', 'master');
+        $repo->commit(['doc1' => $doc1, 'doc2' => $doc2], 'Me <me>', 'Test commit', 'master', 'master');
 
         $this->expectException(\InvalidArgumentException::class);
 
         $this->assertEquals($doc1, $repo->load('doc3', 'master'));
     }
-
-
 }

@@ -54,7 +54,7 @@ class Repository
         exec('git init --bare');
 
         // Make an empty commit, so we always know there is a parent.
-        $this->commit([], "System User <system>", "Initialize new repository", '');
+        $this->commit([], "System User <system>", "Initialize new repository", 'master', '');
     }
 
     /**
@@ -66,12 +66,14 @@ class Repository
      *   The committer for this commit. Must contain < and >, even if they don't wrap an email address.
      * @param string $message
      *   The commit message.
+     * @param string $branch
+     *   The branch on which this commit should happen. If the branch doesn't exist yet it will be created.
      * @param string $parent
      *   The commit ID of the parent commit. Pass an empty string literal to create a no-parent commit.
      */
-    public function commit(array $documents, string $committer, string $message, string $parent)
+    public function commit(array $documents, string $committer, string $message, string $branch, string $parent)
     {
-        $this->synchronize('commit', function () use ($documents, $committer, $message, $parent) {
+        $this->synchronize('commit', function () use ($documents, $committer, $message, $branch, $parent) {
             // Open a new process to the git fast-import tool.
             $command = 'git fast-import --date-format=raw';
             $command .= $this->debug ? ' --stats' : ' --quiet';
@@ -83,16 +85,10 @@ class Repository
             $message_bytes = strlen($message);
 
             // Add the header material that tells it what commit we're creating.
-            // @todo This is a temporary workaround. This way, we can still initialize a repository
-            // but can't have multiple roots. That's probably fine in the long-run, though.
-            if ($parent) {
-                $process->write("commit refs/heads/{$parent}\n");
-            } else {
-                $process->write("commit refs/heads/master\n");
-            }
-            $process->write("committer {$committer} {$timestamp} +0000\n")
-                ->write("data {$message_bytes}\n")
-                ->write("{$message}\n");
+            $process->write("commit refs/heads/{$branch}\n")
+                    ->write("committer {$committer} {$timestamp} +0000\n")
+                    ->write("data {$message_bytes}\n")
+                    ->write("{$message}\n");
 
             if ($parent !== '') {
                 $parentHash = $this->getCommitForBranch($parent);
@@ -184,10 +180,8 @@ class Repository
     /**
      * Creates a new branch in the repository.
      *
-     * @todo Let this support specifying a commit as well as a branch name to start from.
-     *
      * @param string $start
-     *   The branch name from which to branch.
+     *   The branch or commit-ish name from which to branch.
      * @param string $name
      *   The name of the branch to create.
      */
