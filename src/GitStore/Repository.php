@@ -140,35 +140,12 @@ class Repository
 
     public function loadMultiple(array $names, string $commit) : \Iterator
     {
-        $descriptorspec = [
-            1 => ['pipe', 'w'], // stdout of the process
-            2 => ['pipe', 'w'], // stderr of the process
-        ];
-
-        $result = '';
-        $error = '';
-
         foreach ($names as $name) {
-            try {
-                $pipes = [];
-                $process = proc_open(sprintf('git show %s:%s', escapeshellarg($commit), escapeshellarg($name)), $descriptorspec, $pipes, $this->path);
+            $command = sprintf('git show %s:%s', escapeshellarg($commit), escapeshellarg($name));
+            $process = (new SimpleProcess($command, $this->path))->run();
 
-                if (!$process) {
-                    throw new \RuntimeException('Could not call git show.');
-                }
-
-                $result = stream_get_contents($pipes[1]);
-                $error = stream_get_contents($pipes[2]);
-            }
-            finally {
-                foreach ($pipes as $pipe) {
-                    fclose($pipe);
-                }
-                $exitcode = proc_close($process);
-            }
-
-            if ($exitcode === 0) {
-                yield $name => json_decode($result, true);
+            if ($process->exitcode() === 0) {
+                yield $name => json_decode($process->output(), true);
             }
             else {
                 // @todo Some kind of error handling here.
