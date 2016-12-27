@@ -71,19 +71,14 @@ class Repository
      */
     public function commit(array $documents, string $committer, string $message, string $parent)
     {
-        chdir($this->path);
-
         $this->synchronize('commit', function () use ($documents, $committer, $message, $parent) {
             // Make an initial empty commit.  I think.
             try {
                 // Open a new process to the git fast-import tool.
                 $command = 'git fast-import --date-format=raw';
                 $command .= $this->debug ? ' --stats' : ' --quiet';
-                $git = popen($command, 'w');
 
-                if (!$git) {
-                    throw new \RuntimeException('Could not open fast-import process.');
-                }
+                $process = (new SimpleProcess($command, $this->path))->start();
 
                 $timestamp = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('U');
 
@@ -93,17 +88,17 @@ class Repository
                 // @todo This is a temporary workaround. This way, we can still initialize a repository
                 // but can't have multiple roots. That's probably fine in the long-run, though.
                 if ($parent) {
-                    fwrite($git, "commit refs/heads/{$parent}\n");
+                    $process->write("commit refs/heads/{$parent}\n");
                 } else {
-                    fwrite($git, "commit refs/heads/master\n");
+                    $process->write("commit refs/heads/master\n");
                 }
-                fwrite($git, "committer {$committer} {$timestamp} +0000\n");
-                fwrite($git, "data {$message_bytes}\n");
-                fwrite($git, "{$message}\n");
+                $process->write("committer {$committer} {$timestamp} +0000\n")
+                        ->write("data {$message_bytes}\n")
+                        ->write("{$message}\n");
 
                 if ($parent !== '') {
                     $parentHash = $this->getCommitForBranch($parent);
-                    fwrite($git, "from {$parentHash}\n");
+                    $process->write("from {$parentHash}\n");
                 }
 
                 foreach ($documents as $filename => $document) {
@@ -113,14 +108,14 @@ class Repository
                     // character count. That makes strlen() correct in this case.
                     $bytes = strlen($data);
 
-                    fwrite($git, "M 644 inline {$filename}\n");
-                    fwrite($git, "data {$bytes}\n");
-                    fwrite($git, "$data\n");
+                    $process->write("M 644 inline {$filename}\n")
+                            ->write("data {$bytes}\n")
+                            ->write("$data\n");
                 }
             }
             finally {
                 // Always close the stream so we don't leave dangling resources.
-                pclose($git);
+                $process->close();
             }
         });
     }
