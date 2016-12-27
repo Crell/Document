@@ -102,6 +102,10 @@ class SimpleProcess
 
         $this->process = proc_open($this->command, $descriptorspec, $this->pipes, $this->cwd);
 
+        if (!$this->process) {
+            throw new \RuntimeException(sprintf('The process could not be executed for some reason: ', $this->command));
+        }
+
         return $this;
     }
 
