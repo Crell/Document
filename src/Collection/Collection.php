@@ -8,15 +8,13 @@ use Crell\Document\Document\Document;
 use Crell\Document\Document\DocumentInterface;
 use Crell\Document\Document\DocumentNotFoundException;
 use Crell\Document\Document\DocumentSetInterface;
-use Crell\Document\Document\DocumentTrait;
-use Crell\Document\Document\LoadableDocumentTrait;
 use Crell\Document\Document\MutableDocumentInterface;
-use Crell\Document\Document\MutableDocumentTrait;
 use Crell\Document\Document\SimpleDocumentSet;
 use Crell\Document\Driver\CollectionDriverInterface;
 use Ramsey\Uuid\Uuid;
 
-class Collection implements CollectionInterface {
+class Collection implements CollectionInterface
+{
     /**
      * @var string
      */
@@ -147,46 +145,17 @@ class Collection implements CollectionInterface {
         $uuid = Uuid::uuid4()->toString();
         $revision = Uuid::uuid4()->toString();
 
-        $document = $this->createMutableDocument();
-
-        $document->loadFrom([
+        /** @var MutableDocumentInterface $document */
+        $document = Document::hydrate([
             'uuid' => $uuid,
             'language' => $this->language,
             'revision' => $revision,
             'parent_rev' => '',
-            'timestamp' => new \DateTimeImmutable(),
+            'timestamp' => (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('c'),
             'title' => '',
-        ]);
+            'fields' => [],
+        ], true);
 
-        return $document;
-    }
-
-    /**
-     * Creates a new mutable document object, ready to be populated.
-     *
-     * @return MutableDocumentInterface
-     */
-    protected function createMutableDocument() : MutableDocumentInterface
-    {
-        $document = new class extends Document implements MutableDocumentInterface {
-            use DocumentTrait;
-            use MutableDocumentTrait;
-            use LoadableDocumentTrait;
-        };
-        return $document;
-    }
-
-    /**
-     * Creates a new immutable document object, ready to be populated.
-     *
-     * @return Document
-     */
-    protected function createLoadableDocument() : DocumentInterface
-    {
-        $document = new class extends Document implements DocumentInterface {
-            use DocumentTrait;
-            use LoadableDocumentTrait;
-        };
         return $document;
     }
 
@@ -197,8 +166,7 @@ class Collection implements CollectionInterface {
     {
         try {
             $data = $this->driver->loadDefaultRevisionData($this, $uuid, $includeArchived);
-            $document = $this->createLoadableDocument()->loadFrom($data);
-            return $document;
+            return Document::hydrate($data);
         }
         catch (DocumentRecordNotFoundException $e) {
             $e = new DocumentNotFoundException($e->getMessage(), $e->getCode(), $e);
@@ -222,7 +190,8 @@ class Collection implements CollectionInterface {
 
         $data['parent_rev'] = $parentRevision ?: $data['revision'];
 
-        $document = $this->createMutableDocument()->loadFrom($data);
+        /** @var MutableDocumentInterface $document */
+        $document = Document::hydrate($data, true);
         $document->setRevisionId($revision);
         $document->setTimestamp(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
 
@@ -235,7 +204,7 @@ class Collection implements CollectionInterface {
     public function loadRevision(string $uuid, string $revision) : DocumentInterface
     {
         $data = $this->driver->loadRevisionData($this, $uuid, $revision);
-        $document = $this->createLoadableDocument()->loadFrom($data);
+        $document = Document::hydrate($data);
 
         return $document;
     }
@@ -246,7 +215,7 @@ class Collection implements CollectionInterface {
     public function loadLatestRevision(string $uuid) : DocumentInterface
     {
         $data = $this->driver->loadLatestRevisionData($this, $uuid);
-        $document = $this->createLoadableDocument()->loadFrom($data);
+        $document = Document::hydrate($data);
 
         return $document;
     }
@@ -275,7 +244,7 @@ class Collection implements CollectionInterface {
     {
         $data = $this->driver->loadMultipleDefaultRevisionData($this, $uuids, $includeArchived);
         foreach ($data as $uuid => $record) {
-            yield $uuid => $this->createLoadableDocument()->loadFrom($record);
+            yield $uuid => Document::hydrate($record);
         }
     }
 
