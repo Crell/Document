@@ -116,14 +116,20 @@ trait DocumentTrait
      * {@inheritdoc}
      */
     public function jsonSerialize() {
+        $class = new \ReflectionClass($this);
+        while ($class->isAnonymous()) {
+            $class = $class->getParentClass();
+        }
+
         $data = [
-            'class' => get_called_class(),
+            'class' => $class->name,
             'uuid' => $this->uuid,
             'revision' => $this->revision,
             'parent_rev' => $this->parentRev,
             'language' => $this->language,
             'timestamp' => $this->timestamp()->format('c'),
             'title' => $this->title,
+            'fields' => [],
         ];
 
         /**
@@ -131,8 +137,12 @@ trait DocumentTrait
          * @var FieldSet $set
          */
         foreach ($this->fields as $name => $set) {
-            $class = get_class($set[0]);
-            $data['fields'][$name]['class'] = $class;
+            $class = new \ReflectionClass($set[0]);
+            while ($class->isAnonymous()) {
+                $class = $class->getParentClass();
+            }
+
+            $data['fields'][$name]['class'] = $class->name;
             foreach ($set as $index => $field) {
                 $data['fields'][$name]['items'][] = $field->jsonSerialize();
             }

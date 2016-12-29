@@ -55,13 +55,15 @@ class TextField implements \JsonSerializable
      * @param array $data
      *   An array of raw data to repopulate this object. Generally it is a direct
      *   load from JSON data.
+     * @param bool $mutable
+     *   True to return a mutable variant of this field. Defaults to false.
      * @return static
      *   A loaded document, which may be a subclass.
      *
      * @throws \InvalidArgumentException
      *   Thrown if the data structure is missing a required key.
      */
-    public static function hydrate(array $data) : self
+    public static function hydrate(array $data, bool $mutable = false) : self
     {
         $field = new static();
 
@@ -78,6 +80,4 @@ class TextField implements \JsonSerializable
             'value' => $this->value,
         ];
     }
-
-
 }
