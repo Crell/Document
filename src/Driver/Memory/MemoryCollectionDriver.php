@@ -6,6 +6,7 @@ namespace Crell\Document\Driver\Memory;
 
 use Crell\Document\Collection\CollectionInterface;
 use Crell\Document\Collection\DocumentRecordNotFoundException;
+use Crell\Document\Document\Document;
 use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Driver\CollectionDriverInterface;
 
@@ -39,7 +40,8 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         $result = $this->storage->find(function(array $item) use ($collection, $uuid) {
             return $item['uuid'] == $uuid && $item['latest'] == true && $item['language'] == $collection->language();
         });
-        return current(iterator_to_array($result));
+        $record = $result->current();
+        return $record['document'];
     }
 
     /**
@@ -54,8 +56,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
                 // If archived is allowed, turn this line into a noop.
                 && $item['archived'] == ($includeArchived ? $item['archived'] : 0);
         });
-        $value = current(iterator_to_array($result));
-
+        $value = $result->current();
         if (!$value) {
             $e = new DocumentRecordNotFoundException();
             $e->setCollectionName($collection->name())
@@ -64,7 +65,7 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
             throw $e;
         }
 
-        return $value;
+        return $value['document'];
     }
 
     /**
@@ -75,7 +76,8 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
         $result = $this->storage->find(function(array $item) use ($uuid, $revision) {
             return $item['uuid'] == $uuid && $item['revision'] == $revision;
         });
-        return current(iterator_to_array($result));
+        $value = $result->current();
+        return $value['document'];
     }
 
     /**
@@ -132,11 +134,11 @@ class MemoryCollectionDriver implements CollectionDriverInterface {
             'revision' => $document->revision(),
             'parent_rev' => $document->parent(),
             'language' => $document->language(),
-            'document' => $document,
+            'document' => json_decode(json_encode($document, JSON_PRETTY_PRINT), true),
             'title' => $document->title(),
             'latest' => true,
             'archived' => false,
-            'timestamp' => new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
+            'timestamp' => $document->timestamp(),
             'default_rev' => (int)$setDefault,
         ]);
 
