@@ -77,8 +77,11 @@ class Repository
             throw new \Exception('Bad race condition initializing the Git path.');
         }
 
-        chdir($this->path);
-        exec('git init --bare');
+        $process = new SimpleProcess('git init --bare', $this->path);
+
+        if ($process->exitcode()) {
+            throw new \RuntimeException(sprintf('Could not init repository: %s', $process->error()));
+        }
 
         // Make an empty commit, so we always know there is a parent.
         $this->commit([], "System User <system>", "Initialize new repository", 'master', '');
@@ -105,7 +108,7 @@ class Repository
             $command = 'git fast-import --date-format=raw';
             $command .= $this->debug ? ' --stats' : ' --quiet';
 
-            $process = (new SimpleProcess($command, $this->path))->start();
+            $process = (new Process($command, $this->path))->start();
 
             $timestamp = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('U');
 
@@ -175,7 +178,7 @@ class Repository
     {
         foreach ($names as $name) {
             $command = sprintf('git show %s:%s', escapeshellarg($commit), escapeshellarg($name));
-            $process = (new SimpleProcess($command, $this->path))->run();
+            $process = new SimpleProcess($command, $this->path);
 
             if ($process->exitcode() === 0) {
                 yield $name => json_decode($process->output(), true);
@@ -226,7 +229,7 @@ class Repository
     {
         $command = sprintf('git rev-parse %s', $branch);
 
-        $process = (new SimpleProcess($command, $this->path))->run();
+        $process = new SimpleProcess($command, $this->path);
         if ($process->exitcode()) {
             throw new \RuntimeException(sprintf('Error creating branch: %s', $process->error()));
         }
@@ -248,7 +251,7 @@ class Repository
         // get wrapped in single quotes which breaks this command. I am not sure how to fix that.
         $command = sprintf('git update-ref refs/heads/%s %s', $name, $this->getCommitForBranch($start));
 
-        $process = (new SimpleProcess($command, $this->path))->run();
+        $process = new SimpleProcess($command, $this->path);
 
         if ($process->exitcode()) {
             throw new \RuntimeException(sprintf('Error creating branch: %s', $process->error()));
