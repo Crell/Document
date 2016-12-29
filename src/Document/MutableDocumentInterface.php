@@ -10,8 +10,17 @@ namespace Crell\Document\Document;
  * Note: This is for internal use only, and should almost never be used by
  * user-space code.
  */
-interface MutableDocumentInterface extends DocumentInterface {
+interface MutableDocumentInterface extends DocumentInterface
+{
 
+    /**
+     * Sets the title of the document.
+     *
+     * @param string $title
+     *   The title to set.
+     *
+     * @return self
+     */
     public function setTitle(string $title) : self;
 
     /**
