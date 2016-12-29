@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Crell\Document\Collection;
 use Crell\Document\Document\MutableDocumentInterface;
-use Traversable;
 
 /**
  * This class is a command object that represents a commit to be made.

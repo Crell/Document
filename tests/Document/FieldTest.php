@@ -7,7 +7,6 @@ namespace Crell\Document\Document\Test;
 use Crell\Document\Document\Document;
 use Crell\Document\Document\Field\TextField;
 use Crell\Document\Document\FieldSet;
-use Crell\Document\Document\SimpleDocumentSet;
 
 class FieldTest extends \PHPUnit_Framework_TestCase
 {

@@ -6,7 +6,6 @@ namespace Crell\Document\Driver\Memory;
 
 use Crell\Document\Collection\CollectionInterface;
 use Crell\Document\Collection\DocumentRecordNotFoundException;
-use Crell\Document\Document\Document;
 use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Driver\CollectionDriverInterface;
 
