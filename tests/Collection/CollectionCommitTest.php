@@ -6,8 +6,6 @@ namespace Crell\Document\Test\Collection;
 
 use Crell\Document\Collection\Collection;
 use Crell\Document\Collection\CollectionInterface;
-use Crell\Document\Document\DocumentNotFoundException;
-use Crell\Document\Document\MutableDocumentInterface;
 use Crell\Document\Driver\Memory\MemoryCollectionDriver;
 
 

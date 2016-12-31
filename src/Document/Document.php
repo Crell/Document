@@ -7,7 +7,7 @@ namespace Crell\Document\Document;
 /**
  * A document is the basic unit of data.
  */
-class Document implements \JsonSerializable {
+class Document implements \JsonSerializable, DocumentInterface {
     use DocumentTrait;
 
     protected $fields = [];
@@ -41,15 +41,20 @@ class Document implements \JsonSerializable {
      * @param array $data
      *   An array of raw data to repopulate this object. Generally it is a direct
      *   load from JSON data.
+     * @param bool $mutable
+     *   True to return a mutable variant of the specified document. Defaults to false.
      * @return Document
      *   A loaded document, which may be a subclass.
      *
      * @throws \InvalidArgumentException
      *   Thrown if the data structure is missing a required key.
      */
-    public static function hydrate(array $data) : self
+    public static function hydrate(array $data, bool $mutable = false) : self
     {
         $required = ['class', 'uuid', 'revision', 'language', 'title', 'parent_rev', 'timestamp', 'fields'];
+
+        // Allow a missing class specification, in which case fall back to Document.
+        $data += ['class' => static::class];
 
         foreach ($required as $name) {
             if (!isset($data[$name])) {
@@ -57,7 +62,7 @@ class Document implements \JsonSerializable {
             }
         }
 
-        $doc = new $data['class'];
+        $doc = $mutable ? static::createMutableDocument($data['class']) : new $data['class'];
 
         foreach (['uuid', 'revision', 'language', 'title'] as $key) {
             $doc->$key = $data[$key];
@@ -80,7 +85,7 @@ class Document implements \JsonSerializable {
 
             $items = [];
             foreach ($definition['items'] as $item) {
-                $items[] = $definition['class']::hydrate($item);
+                $items[] = $definition['class']::hydrate($item, $mutable);
             }
 
             $doc->fields[$name] = new FieldSet($items);
@@ -90,4 +95,22 @@ class Document implements \JsonSerializable {
     }
 
 
+    /**
+     * Creates a new mutable document object, ready to be populated.
+     *
+     * @todo Currently ignores the $class, because anonymous classes are not dynamic. Figure out how to fix.
+     *
+     * @param string $class
+     *   The class to instantiate. The actual returned class will be a subclass of this one.
+     *
+     * @return MutableDocumentInterface
+     */
+    protected static function createMutableDocument(string $class) : MutableDocumentInterface
+    {
+        $document = new class extends Document implements MutableDocumentInterface {
+            use DocumentTrait;
+            use MutableDocumentTrait;
+        };
+        return $document;
+    }
 }
