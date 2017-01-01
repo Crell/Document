@@ -51,7 +51,7 @@ class Document implements \JsonSerializable, DocumentInterface {
      */
     public static function hydrate(array $data, bool $mutable = false) : self
     {
-        $required = ['class', 'uuid', 'revision', 'language', 'title', 'parent_rev', 'timestamp', 'fields'];
+        $required = ['class', 'uuid', 'language', 'title', 'timestamp', 'fields'];
 
         // Allow a missing class specification, in which case fall back to Document.
         $data += ['class' => static::class];
@@ -64,13 +64,9 @@ class Document implements \JsonSerializable, DocumentInterface {
 
         $doc = $mutable ? static::createMutableDocument($data['class']) : new $data['class'];
 
-        foreach (['uuid', 'revision', 'language', 'title'] as $key) {
+        foreach (['uuid', 'language', 'title'] as $key) {
             $doc->$key = $data[$key];
         }
-
-        // Named differently because coding standards.
-        // @todo Do something about this.
-        $doc->parentRev = $data['parent_rev'];
 
         $doc->timestamp = new \DateTimeImmutable($data['timestamp'], new \DateTimeZone('UTC'));
 

@@ -21,13 +21,6 @@ trait DocumentTrait
     protected $uuid;
 
     /**
-     * Revision ID of this document.
-     *
-     * @var string.
-     */
-    protected $revision;
-
-    /**
      * The language this document is in.
      *
      * @var string
@@ -49,13 +42,6 @@ trait DocumentTrait
     protected $title;
 
     /**
-     * The UUID of the parent revision, if any.
-     *
-     * @var string
-     */
-    protected $parentRev;
-
-    /**
      * {@inheritdoc}
      */
     public function title() : string
@@ -69,19 +55,6 @@ trait DocumentTrait
     public function uuid() : string
     {
         return $this->uuid;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function revision() : string
-    {
-        return $this->revision;
-    }
-
-    public function parent() : string
-    {
-        return $this->parentRev;
     }
 
     /**
@@ -124,8 +97,6 @@ trait DocumentTrait
         $data = [
             'class' => $class->name,
             'uuid' => $this->uuid,
-            'revision' => $this->revision,
-            'parent_rev' => $this->parentRev,
             'language' => $this->language,
             'timestamp' => $this->timestamp()->format('c'),
             'title' => $this->title,
