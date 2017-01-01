@@ -41,7 +41,7 @@ class Commit implements \IteratorAggregate, \Countable
      * @param string $author
      *   The author of this commit.
      */
-    public function __construct(string $message = 'No message', string $author = 'Anonymous')
+    public function __construct(string $message = 'No message', string $author = 'Anonymous <>')
     {
         $this->message = $message;
         $this->author = $author;
@@ -107,8 +107,18 @@ class Commit implements \IteratorAggregate, \Countable
     {
         $that = clone $this;
 
-        $that->revisions[] = $document;
+        $that->revisions[$document->uuid()] = $document;
 
         return $that;
+    }
+
+    public function author() : string
+    {
+        return $this->author;
+    }
+
+    public function message() : string
+    {
+        return $this->message;
     }
 }
