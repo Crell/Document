@@ -112,11 +112,23 @@ class Commit implements \IteratorAggregate, \Countable
         return $that;
     }
 
+    /**
+     * Returns the author of this commit.
+     *
+     * @todo Author and Committer are different things in Git. Do we care?
+     *
+     * @return string
+     */
     public function author() : string
     {
         return $this->author;
     }
 
+    /**
+     *  Returns the commit message of this commit.
+     *
+     * @return string
+     */
     public function message() : string
     {
         return $this->message;
