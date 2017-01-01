@@ -3,6 +3,7 @@
 declare(strict_types = 1);
 
 namespace Crell\Document\Collection;
+
 use Crell\Document\Document\MutableDocumentInterface;
 
 /**
@@ -10,6 +11,8 @@ use Crell\Document\Document\MutableDocumentInterface;
  */
 class Commit implements \IteratorAggregate, \Countable
 {
+    use DocumentFileNameTrait;
+
     /**
      * The commit message for this commit.
      *
@@ -107,7 +110,7 @@ class Commit implements \IteratorAggregate, \Countable
     {
         $that = clone $this;
 
-        $that->revisions[$document->uuid()] = $document;
+        $that->revisions[$this->documentFileName($document)] = $document;
 
         return $that;
     }

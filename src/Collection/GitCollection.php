@@ -24,6 +24,8 @@ use Ramsey\Uuid\Uuid;
  */
 class GitCollection implements CollectionInterface
 {
+    use DocumentFileNameTrait;
+
     /**
      * @var string
      */
@@ -98,7 +100,7 @@ class GitCollection implements CollectionInterface
     public function load(string $uuid, bool $includeArchived = false): DocumentInterface
     {
         try {
-            $data = $this->branch->load($uuid);
+            $data = $this->branch->load($this->documentFileNameFromIds($uuid, $this->language));
             return Document::hydrate($data);
         }
         catch (RecordNotFoundException $e) {
@@ -112,7 +114,7 @@ class GitCollection implements CollectionInterface
 
     public function newRevision(string $uuid, string $parentRevision = null): MutableDocumentInterface
     {
-        $data = $this->branch->load($uuid);
+        $data = $this->branch->load($this->documentFileNameFromIds($uuid, $this->language));
 
         /** @var MutableDocumentInterface $document */
         $document = Document::hydrate($data, true);
@@ -138,10 +140,15 @@ class GitCollection implements CollectionInterface
      * @return \Generator
      *   A generator that produces documents with the specified UUIDs.
      */
-    protected function loadMultipleGenerator(array $uuids, bool $includeArchived = false) : \Generator
+    protected function loadMultipleGenerator($uuids, bool $includeArchived = false) : \Generator
     {
-        foreach ($this->branch->loadMultiple($uuids) as $uuid => $record) {
-            yield $uuid => Document::hydrate($record);
+        $names = [];
+        foreach ($uuids as $uuid) {
+            $names[] = $this->documentFileNameFromIds($uuid, $this->language);
+        }
+
+        foreach ($this->branch->loadMultiple($names) as $uuid => $record) {
+            yield $record['uuid'] => Document::hydrate($record);
         }
     }
 
