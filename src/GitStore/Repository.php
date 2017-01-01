@@ -103,6 +103,10 @@ class Repository
      */
     public function commit($documents, string $committer, string $message, string $branch, string $parent)
     {
+        if (!preg_match('/.*\<.*\>/', $committer)) {
+            throw new InvalidCommitterException(sprintf('Invalid committer: \'%s\'. Committer identifiers must include at least one character followed by < and >, usually (althougn not always) with an email address between them.', $committer));
+        }
+
         $this->synchronize('commit', function () use ($documents, $committer, $message, $branch, $parent) {
             // Open a new process to the git fast-import tool.
             $command = 'git fast-import --date-format=raw';
@@ -157,7 +161,7 @@ class Repository
         $current = $this->loadMultiple([$name], $commit)->current();
 
         if (!$current) {
-            throw new \InvalidArgumentException(sprintf('No Document "%s" found for commit "%s"', $name, $commit));
+            throw new RecordNotFoundException(sprintf('No Document "%s" found for commit "%s"', $name, $commit));
         }
 
         return $current;
