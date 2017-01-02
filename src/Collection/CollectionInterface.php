@@ -15,7 +15,8 @@ use Crell\Document\Document\MutableDocumentInterface;
  *
  * For some definition of similar that is largely open to interpretation.
  */
-interface CollectionInterface {
+interface CollectionInterface
+{
 
     /**
      * Returns the name of this collection.
@@ -159,10 +160,12 @@ interface CollectionInterface {
      * @param bool $setDefault
      *   True if this should become the default revision of this Document in its
      *   language, False otherwise.
+     * @return string
+     *   The commit ID of the commit just created.
      *
      * @throws \Exception
      */
-    public function save(MutableDocumentInterface $document, bool $setDefault = TRUE);
+    public function save(MutableDocumentInterface $document, bool $setDefault = TRUE) : string;
 
     /**
      * Marks the current default revision of a document archived.
@@ -218,10 +221,9 @@ interface CollectionInterface {
      * @param bool $setDefault
      *   True if all documents in the commit should be set as the default version,
      *   false otherwise.
-     *
-     * @return CollectionInterface
-     *   The called object.
+     * @return string
+     *   The commit ID of the commit just created.
      */
-    public function saveCommit(Commit $commit, bool $setDefault = true) : self;
+    public function saveCommit(Commit $commit, bool $setDefault = true) : string;
 
 }

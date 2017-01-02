@@ -178,10 +178,10 @@ class GitCollection implements CollectionInterface
         // NA
     }
 
-    public function save(MutableDocumentInterface $document, bool $setDefault = TRUE)
+    public function save(MutableDocumentInterface $document, bool $setDefault = TRUE) : string
     {
         $commit = $this->createCommit()->withRevision($document);
-        $this->saveCommit($commit, $setDefault);
+        return $this->saveCommit($commit, $setDefault);
     }
 
     public function createCommit(string $message = 'No message', string $author = 'Anonymous <>'): Commit
@@ -189,23 +189,29 @@ class GitCollection implements CollectionInterface
         return new Commit($message, $author);
     }
 
-    public function saveCommit(Commit $commit, bool $setDefault = true): CollectionInterface
+    public function saveCommit(Commit $commit, bool $setDefault = true): string
     {
-        // If there are no commits, there is nothing to do. Viz, no
-        // empty commits allowed.
+        // Disallow empty commits at this level.
         if (!count($commit)) {
-            return $this;
+            throw new \InvalidArgumentException('Empty commits are not allowed.');
         }
 
-        $this->branch->commit($commit, $commit->author(), $commit->message());
-
-        return $this;
+        return $this->branch->commit($commit, $commit->author(), $commit->message());
     }
-
 
     public function loadRevision(string $uuid, string $revision): DocumentInterface
     {
-        // NA
+        try {
+            $data = $this->repository->load($this->documentFileNameFromIds($uuid, $this->language), $revision);
+            return Document::hydrate($data);
+        }
+        catch (RecordNotFoundException $e) {
+            $e = new DocumentNotFoundException(sprintf('No document found with id %s for language %s.', $uuid, $this->language()), $e->getCode(), $e);
+            $e->setCollectionName($this->name())
+                ->setUuid($uuid)
+                ->setLanguage($this->language());
+            throw $e;
+        }
     }
 
     public function loadLatestRevision(string $uuid): DocumentInterface

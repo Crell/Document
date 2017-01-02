@@ -87,7 +87,7 @@ class Collection implements CollectionInterface
      * @return CollectionInterface
      *   The called object.
      */
-    public function saveCommit(Commit $commit, bool $setDefault = true) : CollectionInterface
+    public function saveCommit(Commit $commit, bool $setDefault = true) : string
     {
         // If there are no commits, there is nothing to do. Viz, no
         // empty commits allowed.
@@ -260,7 +260,7 @@ class Collection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function save(MutableDocumentInterface $document, bool $setDefault = true)
+    public function save(MutableDocumentInterface $document, bool $setDefault = true) : string
     {
         $commit = $this->createCommit()->withRevision($document);
         $this->saveCommit($commit, $setDefault);

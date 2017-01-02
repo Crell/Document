@@ -98,31 +98,28 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->save($doc2);
     }
 
-/*
     public function testLoadOldRevision()
     {
         $collection = $this->getCollection();
 
-        $doc1 = $collection->createDocument();
+        $doc1 = $collection->createDocument()->setTitle('Draft 1');
 
         // Save one revision.
         $uuid = $doc1->uuid();
-        $collection->save($doc1);
+        $commit1 = $collection->save($doc1);
 
-        // Save a second revions.
-        $doc2_mut = $collection->newRevision($uuid);
-        $collection->save($doc2_mut);
+        // Save a second revision.
+        $doc2_mut = $collection->newRevision($uuid)->setTitle('Draft 2');;
+        $commit2 = $collection->save($doc2_mut);
 
         // Now try to reload the first revision.
-        $old_revision = $collection->loadRevision($uuid, $doc1->revision());
+        $old_revision = $collection->loadRevision($uuid, $commit1);
 
         // Old revisions should never be mutable.
-        // @todo This may be a wrong assumption.
         $this->assertNotTrue($old_revision instanceof MutableDocumentInterface);
         $this->assertEquals($doc1->uuid(), $old_revision->uuid());
-        $this->assertEquals($doc1->revision(), $old_revision->revision());
+        $this->assertEquals('Draft 1', $old_revision->title());
     }
-*/
 
     public function testLanguage()
     {
