@@ -47,16 +47,6 @@ interface DocumentInterface extends \JsonSerializable
     public function timestamp() : \DateTimeImmutable;
 
     /**
-     * @todo This is probably wrong and terrible and should be removed in favor
-     *       of some other approach. More research needed.
-     *
-     * @param string $language
-     *
-     * @return \Crell\Document\Document\Document
-     */
-    public function asLanguage(string $language) : self;
-
-    /**
      * {@inheritdoc}
      */
     public function jsonSerialize();

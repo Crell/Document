@@ -76,18 +76,6 @@ trait DocumentTrait
     /**
      * {@inheritdoc}
      */
-    public function asLanguage(string $language) : DocumentInterface
-    {
-        $new = clone $this;
-        $new->revision = Uuid::uuid4()->toString();
-        $new->language = $language;
-
-        return $new;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function jsonSerialize() {
         $class = new \ReflectionClass($this);
         while ($class->isAnonymous()) {

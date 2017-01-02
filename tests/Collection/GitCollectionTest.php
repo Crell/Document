@@ -124,31 +124,27 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
     }
 */
 
-/*
     public function testLanguage()
     {
         $collection = $this->getCollection();
 
-        $doc1 = $collection->createDocument()->setTitle('Doc 1');
+        $doc1 = $collection->createDocument()->setTitle('Doc 1 EN');
         $uuid = $doc1->uuid();
 
         $collection->save($doc1);
-
-        $doc1_en = $collection->newRevision($uuid)->setTitle('Doc 1 EN');
-
-        $doc1_fr = $doc1_en->asLanguage('fr');
-
-        $collection->save($doc1_fr);
+        $doc1_en = $collection->load($uuid);
 
         $collection_fr = $collection->forLanguage('fr');
+
+        $doc_fr = $collection_fr->newRevision($uuid)->setTitle('Doc 1 FR');
+        $collection_fr->save($doc_fr);
         $doc1_fr = $collection_fr->load($uuid);
 
         $this->assertEquals($doc1_en->uuid(), $doc1_fr->uuid());
-        $this->assertNotEquals($doc1_en->revision(), $doc1_fr->revision());
+        $this->assertNotEquals($doc1_en->title(), $doc1_fr->title());
         $this->assertEquals('en', $doc1_en->language());
         $this->assertEquals('fr', $doc1_fr->language());
     }
-    */
 
     /*
     public function testDefault()

@@ -37,6 +37,11 @@ class GitCollection implements CollectionInterface
     protected $language;
 
     /**
+     * @var string
+     */
+    protected $baseLanguage;
+
+    /**
      * @var Repository
      */
     protected $repository;
@@ -46,11 +51,12 @@ class GitCollection implements CollectionInterface
      */
     protected $branch;
 
-    public function __construct(string $name, Repository $repository, $language = 'en')
+    public function __construct(string $name, Repository $repository, string $language = 'en', string $baseLanguage = 'en')
     {
         $this->name = $name;
         $this->repository = $repository;
         $this->language = $language;
+        $this->baseLanguage = $baseLanguage;
 
         $this->branch = $this->repository->getBranchPointer('master');
     }
@@ -104,7 +110,7 @@ class GitCollection implements CollectionInterface
             return Document::hydrate($data);
         }
         catch (RecordNotFoundException $e) {
-            $e = new DocumentNotFoundException($e->getMessage(), $e->getCode(), $e);
+            $e = new DocumentNotFoundException(sprintf('No document found with id %s for language %s.', $uuid, $this->language()), $e->getCode(), $e);
             $e->setCollectionName($this->name())
                 ->setUuid($uuid)
                 ->setLanguage($this->language());
@@ -114,7 +120,22 @@ class GitCollection implements CollectionInterface
 
     public function newRevision(string $uuid, string $parentRevision = null): MutableDocumentInterface
     {
-        $data = $this->branch->load($this->documentFileNameFromIds($uuid, $this->language));
+        try {
+            $data = $this->branch->load($this->documentFileNameFromIds($uuid, $this->language));
+        } catch (RecordNotFoundException $e) {
+            // If there is no existing revision in the current language, perhaps there's one in the base
+            // language we can start from? If so, do so. If not, throw the original exception.
+            try {
+                $data = $this->branch->load($this->documentFileNameFromIds($uuid, $this->baseLanguage));
+                $data['language'] = $this->language();
+            } catch (RecordNotFoundException $e2) {
+                $e = new DocumentNotFoundException(sprintf('No document found with id %s. Cannot create new revision.', $uuid), $e->getCode(), $e);
+                $e->setCollectionName($this->name())
+                    ->setUuid($uuid)
+                    ->setLanguage($this->language());
+                throw $e;
+            }
+        }
 
         /** @var MutableDocumentInterface $document */
         $document = Document::hydrate($data, true);
