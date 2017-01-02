@@ -144,50 +144,6 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /*
-    public function testDefault()
-    {
-        $collection = $this->getCollection();
-
-        // Save a new Document.
-        $doc1 = $collection->createDocument();
-        $uuid = $doc1->uuid();
-        $collection->save($doc1);
-
-        // Now make a new non-default revision, aka a forward revision.
-        $doc2 = $collection->newRevision($uuid);
-        $collection->save($doc2, false);
-
-        // This should get the default revision, aka be the same as $doc1.
-        $default = $collection->load($uuid);
-        $latest = $collection->loadLatestRevision($uuid);
-
-        $this->assertEquals($doc1->uuid(), $default->uuid());
-        $this->assertEquals($doc1->revision(), $default->revision());
-    }
-
-    /*
-    public function testLatest()
-    {
-        $collection = $this->getCollection();
-
-        // Save a new Document.
-        $doc1 = $collection->createDocument();
-        $uuid = $doc1->uuid();
-        $collection->save($doc1);
-
-        // Now make a new non-default revision, aka a forward revision.
-        $doc2 = $collection->newRevision($uuid);
-        $collection->save($doc2, false);
-
-        // This should get the most recent revision, aka be the same as $doc2.
-        $latest = $collection->loadLatestRevision($uuid);
-
-        $this->assertEquals($doc2->uuid(), $latest->uuid());
-        $this->assertEquals($doc2->revision(), $latest->revision());
-    }
-    */
-
-    /*
     public function testTimestampIsSaved()
     {
         $collection = $this->getCollection();
@@ -306,67 +262,9 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($uuid1, $docs_array[$uuid1]->uuid());
         $this->assertEquals($uuid2, $docs_array[$uuid2]->uuid());
-
     }
 
     /*
-    public function testCreateFromLatestRevision()
-    {
-        $collection = $this->getCollection();
-
-        // Save a new Document.
-        $doc1 = $collection->createDocument();
-        $uuid = $doc1->uuid();
-        $doc1->setTitle('A');
-        $collection->save($doc1);
-
-        // Make some more revisions.
-        $doc2 = $collection->newRevision($uuid);
-        $doc2->setTitle($doc2->title() . 'B');
-        $collection->save($doc2);
-
-        $doc3 = $collection->newRevision($uuid);
-        $doc3->setTitle($doc3->title() . 'C');
-        $collection->save($doc3);
-
-        // This should get the most recent revision, aka be the same as $doc3.
-        $latest = $collection->loadLatestRevision($uuid);
-
-        // We've been concatenating the title all along, so this should show
-        // that we've always used the latest revision.
-        $this->assertEquals('ABC', $latest->title());
-    }
-    */
-
-    /*
-
-    public function testCreateFromOldRevision()
-    {
-        $collection = $this->getCollection();
-
-        // Save a new Document.
-        $doc1 = $collection->createDocument();
-        $uuid = $doc1->uuid();
-        $doc1->setTitle('A');
-        $collection->save($doc1);
-
-        // Make some more revisions.
-        $doc2 = $collection->newRevision($uuid);
-        $doc2->setTitle($doc2->title() . 'B');
-        $collection->save($doc2);
-
-        // Make this revision off of the first revision, not the second.
-        $doc3 = $collection->newRevision($uuid, $doc1->revision());
-        $doc3->setTitle($doc3->title() . 'C');
-        $collection->save($doc3);
-
-        // This should get the most recent revision, aka be the same as $doc3.
-        $latest = $collection->loadLatestRevision($uuid);
-
-        // Because this revision was built off of the first, not the latest,
-        // its title should reflect only that path.
-        $this->assertEquals('AC', $latest->title());
-    }
 
     public function testParentRevisionIsTracked()
     {
