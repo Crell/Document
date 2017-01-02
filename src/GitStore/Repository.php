@@ -144,16 +144,31 @@ class Repository
                     ->write("$data\n");
             }
 
+            // Clean up formally to ensure the data is persisted before we check the commit ID.
+            $process->write('done');
             $process->close();
 
-            $process = new SimpleProcess(sprintf('git log -n1 --pretty=oneline %s', $branch), $this->path);
-            if ($process->exitcode()) {
-                throw new \RuntimeException(sprintf('Could not determine latest commit ID: %s', $process->error()));
-            }
-            return substr($process->output(), 0, static::SHA1_LENGTH);
+            return $this->getLatestCommitId($branch);
         });
 
         return $commitId;
+    }
+
+    /**
+     * Returns the most recent commit ID on the specified branch.
+     *
+     * @param string $branch
+     *   The branch for whch we want the latest commit.
+     * @return string
+     *   The commit ID of the latest commit on the specified branch.
+     */
+    public function getLatestCommitId(string $branch) : string
+    {
+        $process = new SimpleProcess(sprintf('git log -n1 --pretty=oneline %s', $branch), $this->path);
+        if ($process->exitcode()) {
+            throw new \RuntimeException(sprintf('Could not determine latest commit ID: %s', $process->error()));
+        }
+        return substr($process->output(), 0, static::SHA1_LENGTH);
     }
 
     /**
