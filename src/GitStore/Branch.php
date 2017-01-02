@@ -73,10 +73,12 @@ class Branch
      *   The committer for this commit. Must contain < and >, even if they don't wrap an email address.
      * @param string $message
      *   The commit message.
+     * @return string
+     *   The commit ID of the just-created commit.
      */
     public function commit($documents, string $committer, string $message)
     {
-        $this->repository->commit($documents, $committer, $message, $this->branch, $this->branch);
+        return $this->repository->commit($documents, $committer, $message, $this->branch, $this->branch);
     }
 
     /**
@@ -107,5 +109,18 @@ class Branch
     public function loadMultiple(array $names): \Iterator
     {
         return $this->repository->loadMultiple($names, $this->branch);
+    }
+
+    /**
+     * Returns a list of all commit IDs in which this document was modified, newest first.
+     *
+     * @param string $name
+     *   The document name for which we want a list of historical commits.
+     * @return \Iterator
+     *   An iterable of commit IDs.
+     */
+    public function history(string $name) : \Iterator
+    {
+        return $this->repository->history($name, $this->branch);
     }
 }

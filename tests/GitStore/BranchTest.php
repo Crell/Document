@@ -57,4 +57,29 @@ class BranchTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testCommitHistory()
+    {
+        $repo = $this->getRepository();
+        $master = $repo->getBranchPointer();
+
+        $doc1 = ['hello' => 'world'];
+
+        $commit1 = $master->commit(['doc1' => $doc1], 'Me <me>', 'Test commit');
+
+        // This is a different document so should not show up in the history for doc1.
+        $doc2 = ['goodbye' => 'world'];
+        $commit2 = $master->commit(['doc2' => $doc2], 'Me <me>', 'Test commit');
+
+        $doc1Version2 = ['hello' => 'everyone'];
+        $commit3 = $master->commit(['doc1' => $doc1Version2], 'Me <me>', 'Test commit');
+
+        $commits = $master->history('doc1');
+
+        $commitsArray = iterator_to_array($commits);
+
+        $this->assertEquals($commit3, $commitsArray[0]);
+        $this->assertEquals($commit1, $commitsArray[1]);
+        $this->assertEquals(2, count($commitsArray));
+    }
+
 }
