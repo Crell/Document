@@ -64,4 +64,21 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($doc1, $repo->load('doc3', 'master'));
     }
+
+    public function testLoadOldRevision()
+    {
+        $repo = $this->getRepository();
+
+        $doc1 = ['hello' => 'world'];
+
+        $commit1 = $repo->commit(['doc1' => $doc1], 'Me <me>', 'Test commit', 'master', 'master');
+
+        $doc2 = ['goodbye' => 'world'];
+        $commit2 = $repo->commit(['doc1' => $doc2], 'Me <me>', 'Test commit', 'master', 'master');
+
+        $loaded = $repo->load('doc1', $commit1);
+
+        $this->assertEquals($doc1, $loaded);
+    }
+
 }

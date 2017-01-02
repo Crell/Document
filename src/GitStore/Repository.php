@@ -17,6 +17,7 @@ namespace Crell\Document\GitStore;
  */
 class Repository
 {
+    const SHA1_LENGTH = 40;
 
     /**
      * An absolute path to the bare git repository.
@@ -100,14 +101,16 @@ class Repository
      *   The branch on which this commit should happen. If the branch doesn't exist yet it will be created.
      * @param string $parent
      *   The commit ID of the parent commit. Pass an empty string literal to create a no-parent commit.
+     * @return string
+     *   The commit ID just created.
      */
-    public function commit($documents, string $committer, string $message, string $branch, string $parent)
+    public function commit($documents, string $committer, string $message, string $branch, string $parent) : string
     {
         if (!preg_match('/.*\<.*\>/', $committer)) {
             throw new InvalidCommitterException(sprintf('Invalid committer: \'%s\'. Committer identifiers must include at least one character followed by < and >, usually (althougn not always) with an email address between them.', $committer));
         }
 
-        $this->synchronize('commit', function () use ($documents, $committer, $message, $branch, $parent) {
+        $commitId = $this->synchronize('commit', function () use ($documents, $committer, $message, $branch, $parent) {
             // Open a new process to the git fast-import tool.
             $command = 'git fast-import --date-format=raw';
             $command .= $this->debug ? ' --stats' : ' --quiet';
@@ -140,7 +143,17 @@ class Repository
                     ->write("data {$bytes}\n")
                     ->write("$data\n");
             }
+
+            $process->close();
+
+            $process = new SimpleProcess(sprintf('git log -n1 --pretty=oneline %s', $branch), $this->path);
+            if ($process->exitcode()) {
+                throw new \RuntimeException(sprintf('Could not determine latest commit ID: %s', $process->error()));
+            }
+            return substr($process->output(), 0, static::SHA1_LENGTH);
         });
+
+        return $commitId;
     }
 
     /**
@@ -202,13 +215,15 @@ class Repository
      *   The name of the lock to hold.  Multiple calls with the same name will block.
      * @param callable $func
      *   The callable to execute.
+     * @return mixed
+     *   If the callable has a return value, it will be returned.
      */
     protected function synchronize(string $name, callable $func)
     {
         try {
             $file = fopen('/tmp/gitdoc-' . $name, 'w');
             if (flock($file, LOCK_EX)) {
-                $func();
+                return $func();
             } else {
                 throw new \RuntimeException('flock() failed for some reason.');
             }
