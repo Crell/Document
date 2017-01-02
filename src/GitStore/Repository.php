@@ -276,4 +276,29 @@ class Repository
             throw new \RuntimeException(sprintf('Error creating branch: %s', $process->error()));
         }
     }
+
+    /**
+     * Returns a list of all commit IDs in which this document was modified, newest first.
+     *
+     * @param string $name
+     *   The document name for which we want a list of historical commits.
+     * @param string $branch
+     *   The branch along which to track back history.
+     * @return \Iterator
+     *   An iterable of commit IDs.
+     */
+    public function history(string $name, string $branch) : \Iterator
+    {
+        $process = new SimpleProcess(sprintf('git log --pretty=oneline %s -- %s', $branch, $name), $this->path);
+        if ($process->exitcode()) {
+            throw new \RuntimeException(sprintf('Could not get commit history for file: %s', $process->error()));
+        }
+
+        // @todo This does kind of defeat the purpose of using a generator, but we can refactor that later
+        // if we care.
+        $lines = explode("\n", $process->output());
+        foreach ($lines as $line) {
+            yield substr($line, 0, static::SHA1_LENGTH);
+        }
+    }
 }

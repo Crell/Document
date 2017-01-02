@@ -81,4 +81,28 @@ class RepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($doc1, $loaded);
     }
 
+    public function testGetOldRevisionHistoryForDocument()
+    {
+        $repo = $this->getRepository();
+
+        $doc1 = ['hello' => 'world'];
+
+        $commit1 = $repo->commit(['doc1' => $doc1], 'Me <me>', 'Test commit', 'master', 'master');
+
+        // This is a different document so should not show up in the history for doc1.
+        $doc2 = ['goodbye' => 'world'];
+        $commit2 = $repo->commit(['doc2' => $doc2], 'Me <me>', 'Test commit', 'master', 'master');
+
+        $doc1Version2 = ['hello' => 'everyone'];
+        $commit3 = $repo->commit(['doc1' => $doc1Version2], 'Me <me>', 'Test commit', 'master', 'master');
+
+        $commits = $repo->history('doc1', 'master');
+
+        $commitsArray = iterator_to_array($commits);
+
+        $this->assertEquals($commit3, $commitsArray[0]);
+        $this->assertEquals($commit1, $commitsArray[1]);
+        $this->assertEquals(2, count($commitsArray));
+    }
+
 }
