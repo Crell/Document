@@ -264,6 +264,32 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($uuid2, $docs_array[$uuid2]->uuid());
     }
 
+
+    public function testCommitHistory()
+    {
+        $collection = $this->getCollection();
+
+        $doc1 = $collection->createDocument()->setTitle('Doc 1');
+        $commit1 = $collection->save($doc1);
+
+        $uuid1 = $doc1->uuid();
+
+        // This is a different document so should not show up in the history for doc1.
+        $doc2 = $collection->createDocument()->setTitle('Doc 2');
+        $commit2 = $collection->save($doc2);
+
+        $doc1Rev2 = $collection->newRevision($uuid1)->setTitle('Doc 1 Rev 2');
+        $commit3 = $collection->save($doc1Rev2);
+
+        $commits = $collection->history($uuid1);
+
+        $commitsArray = iterator_to_array($commits);
+
+        $this->assertEquals($commit3, $commitsArray[0]);
+        $this->assertEquals($commit1, $commitsArray[1]);
+        $this->assertEquals(2, count($commitsArray));
+    }
+
     /*
 
     public function testParentRevisionIsTracked()

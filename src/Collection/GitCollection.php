@@ -214,6 +214,19 @@ class GitCollection implements CollectionInterface
         }
     }
 
+    /**
+     * Returns a list of all commit IDs in which this document was modified, newest first.
+     *
+     * @param string $uuid
+     *   The UUID of the document for which we want all historical commits.
+     * @return \Iterator
+     *   An iterable of commit IDs.
+     */
+    public function history(string $uuid) : \Iterator
+    {
+        return $this->branch->history($this->documentFileNameFromIds($uuid, $this->language));
+    }
+
     public function loadLatestRevision(string $uuid): DocumentInterface
     {
         // NA
