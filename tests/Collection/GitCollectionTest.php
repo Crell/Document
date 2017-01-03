@@ -290,65 +290,6 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($commitsArray));
     }
 
-    /*
-
-    public function testParentRevisionIsTracked()
-    {
-        $collection = $this->getCollection();
-
-        // Save a new Document.
-        $doc1 = $collection->createDocument();
-        $uuid = $doc1->uuid();
-        $rev1 = $doc1->revision();
-        $doc1->setTitle('A');
-        $collection->save($doc1);
-
-        // Make some more revisions.
-        $doc2 = $collection->newRevision($uuid);
-        $doc2->setTitle($doc2->title() . 'B');
-        $collection->save($doc2);
-
-        // Make this revision off of the first revision, not the second.
-        $doc3 = $collection->newRevision($uuid, $doc1->revision());
-        $doc3->setTitle($doc3->title() . 'C');
-        $collection->save($doc3);
-
-        // This should get the most recent revision, aka be the same as $doc3.
-        $latest = $collection->loadLatestRevision($uuid);
-
-        $this->assertEquals('', $doc1->parent());
-        $this->assertEquals($rev1, $doc2->parent());
-        $this->assertEquals($rev1, $doc3->parent());
-    }
-
-    public function testCanSetDefaultRevision()
-    {
-        $collection = $this->getCollection();
-
-        // Save a new Document.
-        $doc1 = $collection->createDocument();
-        $uuid = $doc1->uuid();
-        $collection->save($doc1);
-
-        // Now make a new non-default revision, aka a forward revision.
-        $doc2 = $collection->newRevision($uuid);
-        $collection->save($doc2, false);
-
-        // This should get the most default revision, aka be the same as $doc1.
-        $latest = $collection->load($uuid);
-
-        $this->assertEquals($doc1->uuid(), $latest->uuid());
-        $this->assertEquals($doc1->revision(), $latest->revision());
-
-        // Now change what the latest revision is and test again.
-        $collection->setDefaultRevision($uuid, $doc2->language(), $doc2->revision());
-
-        $latest = $collection->load($uuid);
-        $this->assertEquals($doc2->uuid(), $latest->uuid());
-        $this->assertEquals($doc2->revision(), $latest->revision());
-    }
-    */
-
     public function testSingleDocumentNotFound()
     {
         $collection = $this->getCollection();
