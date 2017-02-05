@@ -118,6 +118,29 @@ class GitCollection implements CollectionInterface
         }
     }
 
+    public function loadArchived(string $uuid) : DocumentInterface
+    {
+        try {
+            $name = $this->documentFileNameFromIds($uuid, $this->language);
+
+            // Get the history of edits on this document. The most recent will be where it was deleted.
+            // The next edit before that will have the most recent pre-delete version.
+            $history = $this->branch->history($name);
+            $history->next();
+            $commit = $history->current();
+
+            $data =  $this->repository->load($name, $commit);
+            return Document::hydrate($data);
+        }
+        catch (RecordNotFoundException $e) {
+            $e = new DocumentNotFoundException(sprintf('No document found with id %s for language %s.', $uuid, $this->language()), $e->getCode(), $e);
+            $e->setCollectionName($this->name())
+                ->setUuid($uuid)
+                ->setLanguage($this->language());
+            throw $e;
+        }
+    }
+
     public function newRevision(string $uuid, string $parentRevision = null): MutableDocumentInterface
     {
         try {
@@ -232,9 +255,20 @@ class GitCollection implements CollectionInterface
         // NA
     }
 
-    public function archive(DocumentInterface $document)
+    /**
+     * Archives one or more documents in the collection.
+     *
+     * @param DocumentInterface[] $documents
+     * @return mixed
+     */
+    public function archive(array $documents)
     {
-        // NA
+        $files = [];
+        foreach ($documents as $document) {
+            $files[] = $this->documentFileNameFromIds($document->uuid(), $this->language);
+        }
+
+        return $this->branch->delete($files);
     }
 
     public function commit(): string

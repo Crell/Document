@@ -92,7 +92,8 @@ class Repository
      * Writes a new commit.
      *
      * @param iterable $documents
-     *   An iterable of documents to store.  They may be any JSON-ifiable value.
+     *   An iterable of documents to store.  The key is a file name and the value is any JSON-ifiable value.
+     *   If the value is null the file will be deleted instead.
      * @param string $committer
      *   The committer for this commit. Must contain < and >, even if they don't wrap an email address.
      * @param string $message
@@ -139,9 +140,13 @@ class Repository
                 // character count. That makes strlen() correct in this case.
                 $bytes = strlen($data);
 
-                $process->write("M 644 inline {$filename}\n")
-                    ->write("data {$bytes}\n")
-                    ->write("$data\n");
+                if ($document == null) {
+                    $process->write("D {$filename}\n");
+                } else {
+                    $process->write("M 644 inline {$filename}\n")
+                        ->write("data {$bytes}\n")
+                        ->write("$data\n");
+                }
             }
 
             // Clean up formally to ensure the data is persisted before we check the commit ID.
@@ -153,6 +158,15 @@ class Repository
 
         return $commitId;
     }
+
+    public function delete(array $names, string $branch)
+    {
+        $documents = array_fill_keys($names, null);
+
+        // @todo Figure out a better way of handling the committer and message, k?
+        return $this->commit($documents, 'Deleter <>', 'Delete', $branch, $branch);
+    }
+
 
     /**
      * Returns the most recent commit ID on the specified branch.

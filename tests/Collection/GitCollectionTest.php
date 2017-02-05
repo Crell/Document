@@ -373,8 +373,6 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([$uuid3, $uuid1, $uuid2], $keys);
     }
 
-    /*
-
     public function testArchiveOne()
     {
         $collection = $this->getCollection();
@@ -385,7 +383,7 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->save($doc1);
 
         // Now archive it.
-        $collection->archive($doc1);
+        $collection->archive([$doc1]);
 
         // Add a second for good measure.
         $doc2 = $collection->createDocument();
@@ -395,7 +393,7 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
         // It should now behave as if it doesn't exist.
         try {
             $collection->load($uuid1);
-            $this->fail('No exception thrown or wrong exception thrown');
+            $this->fail('No exception thrown or wrong exception thrown.');
         }
         catch (DocumentNotFoundException $e) {
             $this->assertEquals($collection->name(), $e->getCollectionName());
@@ -417,7 +415,7 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->save($doc1);
 
         // Now archive it.
-        $collection->archive($doc1);
+        $collection->archive([$doc1]);
 
         // Add a second for good measure.
         $doc2 = $collection->createDocument();
@@ -441,12 +439,14 @@ class GitCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->save($doc1);
 
         // Now archive it.
-        $collection->archive($doc1);
+        $collection->archive([$doc1]);
 
-        // Load it, allowing for achived.  This will throw an exception if
+        // Load it, allowing for archived.  This will throw an exception if
         // not found.
-        $collection->load($uuid1, true);
+        $collection->loadArchived($uuid1);
     }
+
+    /*
 
     public function testLoadArchivedMultiple()
     {

@@ -73,6 +73,8 @@ interface CollectionInterface
      */
     public function load(string $uuid, bool $includeArchived = false) : DocumentInterface;
 
+    public function loadArchived(string $uuid) : DocumentInterface;
+
     /**
      * Retrieves a specified document, with special Mutable methods.
      *
@@ -176,10 +178,10 @@ interface CollectionInterface
      * Note: This MAY get subsumed into moderation rules later rather than something
      * that can be set directly.  TBD.
      *
-     * @param DocumentInterface $document
+     * @param DocumentInterface[] $document
      *   The document to archive.
      */
-    public function archive(DocumentInterface $document);
+    public function archive(array $document);
 
     /**
      * Returns the commit ID the collection points to.

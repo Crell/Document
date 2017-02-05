@@ -123,4 +123,15 @@ class Branch
     {
         return $this->repository->history($name, $this->branch);
     }
+
+    /**
+     * Removes one or more documents from the repository.
+     *
+     * @param string[] $names
+     * @return mixed
+     */
+    public function delete(array $names)
+    {
+        return $this->repository->delete($names, $this->branch);
+    }
 }

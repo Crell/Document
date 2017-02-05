@@ -177,6 +177,11 @@ class Collection implements CollectionInterface
         }
     }
 
+    public function loadArchived(string $uuid): DocumentInterface
+    {
+        // TODO: Implement loadArchived() method.
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -269,8 +274,9 @@ class Collection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function archive(DocumentInterface $document)
+    public function archive(array $document)
     {
+        $document = current($document);
         $defaultRevisionData = $this->driver->loadDefaultRevisionData($this, $document->uuid());
         $this->driver->setArchived($this, $defaultRevisionData['revision']);
     }
